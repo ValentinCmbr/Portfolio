@@ -1,53 +1,42 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import profilePic from '../assets/profile.jpg';
+import {FaGithub, FaLinkedin} from "react-icons/fa";
 
 const Home = () => {
-    const navigate = useNavigate();
-
     return (
-        <div style={styles.container}>
-            <h1 style={styles.title}>Bienvenue sur mon Portfolio</h1>
-            <p style={styles.description}>
-                Découvrez mes projets et apprenez-en davantage sur mon parcours.
-            </p>
-            <button style={styles.button} onClick={() => navigate("/learn-more")}>
-                En savoir plus
-            </button>
-        </div>
+        <section id="home" className="vh-100 d-flex align-items-center bg-light pt-5">
+            <div className="container text-center">
+                <img
+                    src={profilePic}
+                    alt="Moi"
+                    className="rounded-circle shadow mb-4"
+                    style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                />
+                <h1 className="fw-bold">Salut, moi c’est Valentin 👋</h1>
+                <p className="lead text-muted mt-3">
+                    Développeur web
+                </p>
+                <div className="d-flex justify-content-center gap-4 mt-4 fs-3">
+                    <a
+                        href="https://www.linkedin.com/in/valentin-combier"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-dark"
+                    >
+                        <FaLinkedin />
+                    </a>
+                    <a
+                        href="https://github.com/ValentinCmbr"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-decoration-none text-dark"
+                    >
+                        <FaGithub />
+                    </a>
+                </div>
+            </div>
+        </section>
     );
-};
-
-const styles = {
-    container: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        background: "linear-gradient(to right, #6a11cb, #2575fc)",
-        color: "white",
-        textAlign: "center",
-        fontFamily: "'Roboto', sans-serif",
-    },
-    title: {
-        fontSize: "3rem",
-        margin: "0.5em 0",
-    },
-    description: {
-        fontSize: "1.2rem",
-        marginBottom: "1.5em",
-        maxWidth: "600px",
-    },
-    button: {
-        background: "#ffffff",
-        color: "#2575fc",
-        padding: "10px 20px",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        fontSize: "1rem",
-        transition: "transform 0.2s, background 0.3s",
-    },
 };
 
 export default Home;

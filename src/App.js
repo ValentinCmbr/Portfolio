@@ -1,22 +1,27 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home";
+import Formations from "./pages/formations";
+import Experiences from "./pages/experiences";
 import About from "./pages/about";
-import Projects from "./pages/projects";
+import Navbar from "./components/Navbar";
 import Contact from "./pages/contact";
-import LearnMore from "./pages/LearnMore";
+import React from "react";
+import Projects from "./pages/projects";
+import Skills from "./pages/skills";
 
 function App() {
-  return (
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/contact" element={<Contact />} />
-            <Route path="/learn-more" element={<LearnMore />} />
-        </Routes>
-      </Router>
-  );
+    return (
+        <>
+            <Navbar />
+            <Home />
+            <About />
+            <Skills/>
+            <Projects/>
+            <Experiences />
+            <Formations />
+            <Contact/>
+        </>
+    );
 }
 
 export default App;

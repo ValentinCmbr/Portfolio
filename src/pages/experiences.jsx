@@ -14,17 +14,8 @@ const TimelineItem = ({ title, company, type, date, align = "left" }) => (
 
 const Experiences = () => {
     return (
-        <>
-            <div style={{overflow: 'hidden', lineHeight: 0}}>
-                <svg viewBox="0 0 1440 150" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        fill="#e9f1ff"
-                        d="M0,0 C480,120 960,0 1440,120 L1440,150 L0,150 Z"
-                    />
-                </svg>
-            </div>
 
-            <section id="experiences" className="py-5" style={{backgroundColor: '#e9f1ff'}}>
+            <section id="experiences" className="py-5" style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}>
                 <div className="container">
                     <h2 className="text-center mb-5 fw-bold">Mon parcours</h2>
                     <div className="timeline">
@@ -71,7 +62,6 @@ const Experiences = () => {
                     </div>
                 </div>
             </section>
-        </>
     );
 };
 

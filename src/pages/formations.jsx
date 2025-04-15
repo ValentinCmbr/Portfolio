@@ -3,24 +3,10 @@ import { FaGraduationCap } from 'react-icons/fa';
 
 const Formations = () => {
     return (
-        <>
-            <div style={{overflow: 'hidden', lineHeight: 0, background: '#f8f9fa'}}>
-                <svg
-                    viewBox="0 0 1440 320"
-                    xmlns="http://www.w3.org/2000/svg"
-                    style={{display: 'block'}}
-                >
-                    <path
-                        fill="#fdfdfd"
-                        fillOpacity="1"
-                        d="M0,160L60,170.7C120,181,240,203,360,197.3C480,192,600,160,720,144C840,128,960,128,1080,133.3C1200,139,1320,149,1380,154.7L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
-                    />
-                </svg>
-            </div>
             <section
                 id="formations"
                 className="pt-5 pb-5"
-                style={{backgroundColor: '#fdfdfd'}}
+                style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}
             >
                 <div className="container">
                     <h2 className="text-center fw-bold mb-5">Mes Formations</h2>
@@ -46,7 +32,6 @@ const Formations = () => {
                     </div>
                 </div>
             </section>
-        </>
     );
 };
 

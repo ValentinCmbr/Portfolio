@@ -22,7 +22,7 @@ const Contact = () => {
     };
 
     return (
-        <section id="contact" className="py-5 bg-white text-center">
+        <section id="contact" className="py-5 text-center" style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}>
             <div className="container">
                 <h2 className="fw-bold mb-4">Me Contacter</h2>
 

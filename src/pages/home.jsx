@@ -4,7 +4,7 @@ import {FaGithub, FaLinkedin} from "react-icons/fa";
 
 const Home = () => {
     return (
-        <section id="home" className="vh-100 d-flex align-items-center bg-light pt-5">
+        <section id="home" className="vh-100 d-flex align-items-center  pt-5" style={{backgroundColor: '#FEFEFE'}}>
             <div className="container text-center">
                 <img
                     src={profilePic}

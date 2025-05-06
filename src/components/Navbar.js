@@ -1,10 +1,13 @@
 import React from 'react';
+import TypewriterText from './TypeWriterText';
 
 const Navbar = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
             <div className="container">
-                <a className="navbar-brand" href="#home">Valentin</a>
+                <a className="navbar-brand" href="#home">
+                    <TypewriterText text="Valentin" />
+                </a>
                 <button
                     className="navbar-toggler"
                     type="button"

@@ -10,7 +10,8 @@ import {
     FaLinux,
     FaDatabase
 } from 'react-icons/fa';
-import { SiMysql, SiPostgresql, SiDocker } from 'react-icons/si';
+import {SiMysql, SiPostgresql, SiDocker, SiVercel, SiPrometheus, SiJetbrains} from 'react-icons/si';
+import {BiLogoBootstrap, BiLogoJava, BiLogoNodejs, BiLogoPython, BiLogoSpringBoot, BiLogoVuejs} from "react-icons/bi";
 
 const Skills = () => {
     return (
@@ -31,6 +32,8 @@ const Skills = () => {
                             <FaCss3Alt title="CSS3" />
                             <FaJsSquare title="JavaScript" />
                             <FaReact title="React" />
+                            <BiLogoVuejs title="Vue.js" />
+                            <BiLogoBootstrap title="Bootstrap" />
                         </div>
                     </div>
 
@@ -40,6 +43,10 @@ const Skills = () => {
                         <div className="d-flex flex-wrap justify-content-center gap-3 fs-2">
                             <FaPhp title="PHP" />
                             <FaSymfony title="Symfony" />
+                            <BiLogoJava title="Java" />
+                            <BiLogoSpringBoot title="Spring Boot" />
+                            <BiLogoPython title="Python" />
+                            <BiLogoNodejs title="Node.js" />
                             <FaDatabase title="SQL" />
                             <SiMysql title="MySQL" />
                             <SiPostgresql title="PostgreSQL" />
@@ -52,7 +59,8 @@ const Skills = () => {
                         <div className="d-flex flex-wrap justify-content-center gap-3 fs-2">
                             <FaGitAlt title="Git" />
                             <SiDocker title="Docker" />
-                            <FaLinux title="Linux" />
+                            <SiVercel title="Vercel" />
+                            <SiJetbrains title="JetBrains" />
                         </div>
                     </div>
                 </div>

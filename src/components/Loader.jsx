@@ -15,10 +15,10 @@ const Loader = () => {
                 width: '100vw',
                 height: '100vh',
                 backgroundColor: '#f9f9f9',
+                zIndex: 2000,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                zIndex: 2000
             }}
         >
             <motion.div

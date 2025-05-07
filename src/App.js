@@ -16,11 +16,17 @@ function App() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 1500); // durée du loader en ms
+        const handleReady = () => {
+            // petite pause pour que le loader disparaisse doucement
+            setTimeout(() => setLoading(false), 500);
+        };
 
-        return () => clearTimeout(timer);
+        if (document.readyState === 'complete') {
+            handleReady();
+        } else {
+            window.addEventListener('load', handleReady);
+            return () => window.removeEventListener('load', handleReady);
+        }
     }, []);
 
     return (

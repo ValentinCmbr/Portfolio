@@ -7,10 +7,9 @@ import {
     FaPhp,
     FaSymfony,
     FaGitAlt,
-    FaLinux,
     FaDatabase
 } from 'react-icons/fa';
-import {SiMysql, SiPostgresql, SiDocker, SiVercel, SiPrometheus, SiJetbrains} from 'react-icons/si';
+import {SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains} from 'react-icons/si';
 import {BiLogoBootstrap, BiLogoJava, BiLogoNodejs, BiLogoPython, BiLogoSpringBoot, BiLogoVuejs} from "react-icons/bi";
 
 const Skills = () => {

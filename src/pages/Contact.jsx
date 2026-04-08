@@ -30,10 +30,10 @@ const Contact = () => {
         setSending(true);
 
         emailjs.sendForm(
-            'service_gmail_val',
-            'template_cyst4yr',
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
             form.current,
-            'REMOVED',
+            import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
         )
             .then(() => {
                 localStorage.setItem(LS_KEY, Date.now().toString());

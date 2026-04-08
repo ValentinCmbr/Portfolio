@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 
 const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 const LS_KEY = 'contact_last_sent';
@@ -44,9 +46,17 @@ const Contact = () => {
             .finally(() => setSending(false));
     };
 
+    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+
     return (
         <section id="contact" className="py-5 text-center" style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}>
-            <div className="container">
+            <motion.div
+                ref={ref}
+                className="container"
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
                 <h2 className="fw-bold mb-4">Me contacter</h2>
 
                 {!sent ? (
@@ -83,7 +93,7 @@ const Contact = () => {
                 ) : (
                     <div className="alert alert-success">Message bien envoyé, merci ! ✅</div>
                 )}
-            </div>
+            </motion.div>
         </section>
     );
 };

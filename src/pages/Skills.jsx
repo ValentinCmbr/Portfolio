@@ -1,4 +1,5 @@
-import React from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import {
     FaReact, FaHtml5, FaCss3Alt, FaJsSquare,
     FaPhp, FaSymfony, FaGitAlt, FaDatabase
@@ -55,13 +56,21 @@ const categories = [
 ];
 
 const Skills = () => {
+    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+
     return (
         <section
             id="skills"
             className="py-5 text-center"
             style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}
         >
-            <div className="container">
+            <motion.div
+                ref={ref}
+                className="container"
+                initial={{ opacity: 0, y: 30 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
                 <h2 className="fw-bold mb-5">Mes compétences</h2>
                 <div className="row justify-content-center">
                     {categories.map(cat => (
@@ -75,7 +84,7 @@ const Skills = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </motion.div>
         </section>
     );
 };

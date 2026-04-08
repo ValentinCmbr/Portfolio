@@ -1,37 +1,81 @@
 import React from 'react';
-import { FaGraduationCap } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import './Timeline.css';
+
+const containerVariants = {
+    hidden: {},
+    visible: {
+        transition: {
+            staggerChildren: 0.15
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 }
+};
+
+const FormationItem = ({ degree, school, period, details }) => (
+    <motion.div className="timeline-item" variants={itemVariants}>
+        <div className="timeline-dot"></div>
+        <div className="timeline-content">
+            <div className="d-flex justify-content-between align-items-start flex-wrap gap-1">
+                <div>
+                    <h5 className="fw-bold mb-0">{degree}</h5>
+                    <span className="text-muted" style={{ fontSize: '0.9rem' }}>{school}</span>
+                </div>
+                <span className="badge rounded-pill" style={{ backgroundColor: '#e8eef8', color: '#0d6efd', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                    {period}
+                </span>
+            </div>
+            {details && (
+                <p className="mb-0 mt-2" style={{ fontSize: '0.875rem', color: '#444' }}>{details}</p>
+            )}
+        </div>
+    </motion.div>
+);
 
 const Formations = () => {
+    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+
     return (
-            <section
-                id="formations"
-                className="pt-5 pb-5"
-                style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}
-            >
-                <div className="container">
-                    <h2 className="text-center fw-bold mb-5">Mes Formations</h2>
+        <section id="formations" className="py-5" style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}>
+            <div className="container">
+                <h2 className="text-center fw-bold mb-5">Mes formations</h2>
 
-                    <div
-                        className="list-group list-group-flush text-start mx-auto"
-                        style={{maxWidth: '600px'}}
-                    >
-                        <div className="list-group-item bg-transparent border-0 d-flex align-items-center gap-2">
-                            <FaGraduationCap className="text-primary"/>
-                            <span className="fw-medium">Master Digital Solutions & Data Management - 2024</span>
-                        </div>
+                <div className="row justify-content-center">
+                    <div className="col-lg-8">
+                        <motion.div
+                            ref={ref}
+                            className="timeline"
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate={inView ? "visible" : "hidden"}
+                        >
+                            <FormationItem
+                                degree="Master · Manager de solutions digitales et data"
+                                school="ORT Lyon"
+                                period="2022 – 2024"
+                            />
 
-                        <div className="list-group-item bg-transparent border-top d-flex align-items-center gap-2">
-                            <FaGraduationCap className="text-primary"/>
-                            <span className="fw-medium">Licence Informatique - 2022</span>
-                        </div>
+                            <FormationItem
+                                degree="Bachelor · Concepteur de Systèmes d'Informations"
+                                school="ORT Lyon"
+                                period="2021 – 2022"
+                            />
 
-                        <div className="list-group-item bg-transparent border-top d-flex align-items-center gap-2">
-                            <FaGraduationCap className="text-primary"/>
-                            <span className="fw-medium">BTS SIO - 2020</span>
-                        </div>
+                            <FormationItem
+                                degree="BTS · Systèmes numériques informatiques et réseaux"
+                                school="ORT Lyon"
+                                period="2019 – 2021"
+                            />
+                        </motion.div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
     );
 };
 

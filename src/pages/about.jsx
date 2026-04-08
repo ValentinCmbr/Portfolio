@@ -12,21 +12,19 @@ const About = () => {
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <p className="lead">
-                            Je m'appelle Valentin, développeur passionné par la création de solutions modernes,
-                            performantes et accessibles.
-                            J’aime transformer des idées en projets concrets, que ce soit une application web, un outil
-                            interne ou un site vitrine.
+                            Je m'appelle Valentin, développeur web basé à Lyon. J'ai construit mon expérience
+                            en alternance sur des projets concrets — intégration d'ERP, développement d'outils
+                            internes, et interfaces web du front au back.
                         </p>
                         <p>
-                            Curieux de nature, j’ai toujours aimé comprendre comment les choses fonctionnent, et le
-                            développement m’a donné ce terrain de jeu parfait où je peux apprendre sans cesse tout en
-                            bâtissant du concret.
+                            Ce qui me motive, c'est de comprendre comment les choses fonctionnent et de les
+                            améliorer. Que ce soit en optimisant un processus métier ou en peaufinant une
+                            interface, j'aime que le résultat soit utile autant que propre.
                         </p>
                         <p>
-                            Que ce soit en entreprise ou en projet perso, j’accorde beaucoup d’importance à la qualité
-                            du code, à l’expérience utilisateur, et au travail en équipe.
-                            Je suis convaincu que la tech est avant tout un <strong>moyen d’innover, de simplifier et de
-                            connecter</strong>.
+                            Aujourd'hui je cherche un poste en <strong>CDI / CDD</strong> où je peux continuer
+                            à progresser sur des projets qui ont du sens, dans une équipe où la qualité du code
+                            et la collaboration comptent vraiment.
                         </p>
                     </div>
                 </div>

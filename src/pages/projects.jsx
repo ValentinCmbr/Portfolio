@@ -9,7 +9,7 @@ const Projects = () => {
             style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}
         >
             <div className="container">
-                <h2 className="fw-bold mb-5">Mes Projets</h2>
+                <h2 className="fw-bold mb-5">Mes projets</h2>
 
                 <div className="row justify-content-center">
                     <div className="col-md-6 col-lg-4 mb-4">

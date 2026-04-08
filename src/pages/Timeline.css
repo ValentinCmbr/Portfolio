@@ -1,56 +1,51 @@
 .timeline {
     position: relative;
-    padding: 2rem 0;
+    padding: 0.5rem 0 0.5rem 2.5rem;
 }
 
 .timeline::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
+    left: 7px;
+    width: 3px;
     height: 100%;
-    background: #0d6efd;
+    background: linear-gradient(to bottom, #0d6efd, #6ea8fe);
+    border-radius: 2px;
 }
 
 .timeline-item {
     position: relative;
-    margin-bottom: 2rem; /* ✅ moins d’espace entre les blocs */
-    width: 50%;
-    padding: 0.5rem; /* ✅ moins de padding global */
-}
-
-.timeline-item.left {
-    left: 0;
-    text-align: right;
-}
-
-.timeline-item.right {
-    left: 50%;
-    text-align: left;
+    margin-bottom: 1.25rem;
 }
 
 .timeline-dot {
     position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12px; /* ✅ plus petit */
-    height: 12px;
-    background: #0d6efd;
+    top: 14px;
+    left: -2.5rem;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 3px solid #0d6efd;
     border-radius: 50%;
     z-index: 1;
+    margin-left: 1px;
 }
 
 .timeline-content {
     background: white;
     color: black;
-    padding: 0.75rem 1rem; /* ✅ réduit verticalement */
-    font-size: 0.9rem; /* ✅ taille de texte réduite */
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
     border-radius: 0.5rem;
     position: relative;
     z-index: 2;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e8eef8;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.timeline-content:hover {
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.12);
+    transform: translateY(-1px);
 }

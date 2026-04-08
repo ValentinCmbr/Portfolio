@@ -16,7 +16,6 @@ function App() {
 
     useEffect(() => {
         const handleReady = () => {
-            // petite pause pour que le loader disparaisse doucement
             setTimeout(() => setLoading(false), 500);
         };
 

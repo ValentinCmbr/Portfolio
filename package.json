@@ -1,6 +1,8 @@
 {
-  "name": "untitled",
-  "version": "0.1.0",
+  "name": "valentin-combier-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio personnel de Valentin Combier — développeur web",
+  "author": "Valentin Combier",
   "private": true,
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

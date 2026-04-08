@@ -33,7 +33,7 @@ const TimelineItem = ({ title, company, type, date, description = [] }) => (
             <p className="text-muted mb-0 mt-1" style={{ fontSize: '0.82rem' }}>{date}</p>
             {description.length > 0 && (
                 <ul className="mt-2 mb-0 ps-3" style={{ fontSize: '0.875rem', color: '#444' }}>
-                    {description.map((item, i) => <li key={i}>{item}</li>)}
+                    {description.map((item) => <li key={item}>{item}</li>)}
                 </ul>
             )}
         </div>

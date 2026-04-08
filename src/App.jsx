@@ -4,7 +4,7 @@ import Experiences from "./pages/Experiences";
 import About from "./pages/About";
 import Navbar from "./components/Navbar";
 import Contact from "./pages/Contact";
-import React, {useState, useEffect} from "react";
+import {useState, useEffect} from "react";
 import Projects from "./pages/Projects";
 import Skills from "./pages/Skills";
 import ScrollToTopButton from "./components/ScrollTopButton";

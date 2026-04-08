@@ -22,13 +22,13 @@ const Navbar = () => {
                             <a className="nav-link" href="#home">Accueil</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link" href={"#about"}>À propos</a>
+                            <a className="nav-link" href="#about">À propos</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link" href={"#skills"}>Mes compétences</a>
+                            <a className="nav-link" href="#skills">Mes compétences</a>
                         </li>
                         <li className="nav-item">
-                            <a className="nav-link" href={"#projects"}>Projets</a>
+                            <a className="nav-link" href="#projects">Projets</a>
                         </li>
                         <li className="nav-item">
                             <a className="nav-link" href="#experiences">Expériences</a>
@@ -39,12 +39,11 @@ const Navbar = () => {
                         <li className="nav-item">
                             <a className="nav-link" href="#contact">Contact</a>
                         </li>
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
-</nav>
-)
-    ;
+        </nav>
+    );
 };
 
 export default Navbar;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import './Timeline.css';
+import '../styles/Timeline.css';
 
 const containerVariants = {
     hidden: {},

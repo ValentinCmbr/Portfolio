@@ -2,7 +2,7 @@
 
 Mon portfolio personnel présentant mon parcours, mes compétences et mes projets.
 
-**[valentincombier.vercel.app](https://www.valentincombier.com/)**
+**[valentincombier.com](https://www.valentincombier.com/)**
 
 ## Stack
 

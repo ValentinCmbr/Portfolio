@@ -59,6 +59,14 @@ code {
   --skills-label-color: #94a3b8;
 }
 
+.badge-pill-custom {
+  background-color: var(--badge-bg);
+  color: var(--badge-color);
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 [data-theme="dark"] .text-muted {
   color: #94a3b8 !important;
 }

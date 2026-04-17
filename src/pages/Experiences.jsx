@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import '../styles/Timeline.css';
@@ -26,7 +25,7 @@ const TimelineItem = ({ title, company, type, date, description = [] }) => (
                     <h5 className="fw-bold mb-0">{title}</h5>
                     <span className="text-muted" style={{ fontSize: '0.9rem' }}>{company}</span>
                 </div>
-                <span className="badge rounded-pill" style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--badge-color)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <span className="badge rounded-pill badge-pill-custom">
                     {type}
                 </span>
             </div>

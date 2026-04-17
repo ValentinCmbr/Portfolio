@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import '../styles/Timeline.css';
@@ -26,7 +25,7 @@ const FormationItem = ({ degree, school, period, details }) => (
                     <h5 className="fw-bold mb-0">{degree}</h5>
                     <span className="text-muted" style={{ fontSize: '0.9rem' }}>{school}</span>
                 </div>
-                <span className="badge rounded-pill" style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--badge-color)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <span className="badge rounded-pill badge-pill-custom">
                     {period}
                 </span>
             </div>

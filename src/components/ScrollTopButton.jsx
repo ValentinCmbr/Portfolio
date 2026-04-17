@@ -36,7 +36,7 @@ const ScrollToTopButton = () => {
                         width: '56px',
                         height: '56px',
                         borderRadius: '50%',
-                        backgroundColor: '#0d6efd',
+                        backgroundColor: 'var(--badge-color)',
                         color: '#fff',
                         border: 'none',
                         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',

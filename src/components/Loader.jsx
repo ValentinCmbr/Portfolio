@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 const Loader = () => {
@@ -14,7 +13,7 @@ const Loader = () => {
                 left: 0,
                 width: '100vw',
                 height: '100vh',
-                backgroundColor: '#f9f9f9',
+                backgroundColor: 'var(--bg)',
                 zIndex: 2000,
                 display: 'flex',
                 alignItems: 'center',
@@ -33,7 +32,7 @@ const Loader = () => {
                 style={{
                     width: 48,
                     height: 48,
-                    border: '6px solid #e0e0e0',
+                    border: '6px solid var(--border)',
                     borderTop: '6px solid #0d6efd',
                     borderRadius: '50%'
                 }}

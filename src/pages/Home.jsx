@@ -156,6 +156,13 @@ const Home = () => {
                 <div className="d-flex justify-content-center gap-3 mt-4">
                     <a href="#projects" className="btn btn-dark px-4">Mes projets</a>
                     <a href="#contact" className="btn btn-outline-dark px-4">Me contacter</a>
+                    <a
+                        href="/CV_Dev.pdf"
+                        download="CV_Valentin_Combier.pdf"
+                        className="btn btn-outline-dark px-4"
+                    >
+                        Télécharger CV
+                    </a>
                 </div>
 
             </div>

@@ -11,6 +11,7 @@ import ScrollToTopButton from "./components/ScrollTopButton";
 import Loader from "./components/Loader";
 import {motion} from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
                     <Contact/>
                     <ScrollToTopButton/>
                     <Analytics />
+                    <SpeedInsights />
                 </motion.div>
             )}
         </>

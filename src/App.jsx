@@ -10,6 +10,7 @@ import Skills from "./pages/Skills";
 import ScrollToTopButton from "./components/ScrollTopButton";
 import Loader from "./components/Loader";
 import {motion} from "framer-motion";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -46,6 +47,7 @@ function App() {
                     <Formations/>
                     <Contact/>
                     <ScrollToTopButton/>
+                    <Analytics />
                 </motion.div>
             )}
         </>

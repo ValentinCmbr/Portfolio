@@ -26,12 +26,12 @@ const FormationItem = ({ degree, school, period, details }) => (
                     <h5 className="fw-bold mb-0">{degree}</h5>
                     <span className="text-muted" style={{ fontSize: '0.9rem' }}>{school}</span>
                 </div>
-                <span className="badge rounded-pill" style={{ backgroundColor: '#e8eef8', color: '#0d6efd', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <span className="badge rounded-pill" style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--badge-color)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
                     {period}
                 </span>
             </div>
             {details && (
-                <p className="mb-0 mt-2" style={{ fontSize: '0.875rem', color: '#444' }}>{details}</p>
+                <p className="mb-0 mt-2" style={{ fontSize: '0.875rem', color: 'var(--detail-color)' }}>{details}</p>
             )}
         </div>
     </motion.div>
@@ -41,7 +41,7 @@ const Formations = () => {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
     return (
-        <section id="formations" className="py-5" style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}>
+        <section id="formations" className="py-5" style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
             <div className="container">
                 <h2 className="text-center fw-bold mb-5">Mes formations</h2>
 

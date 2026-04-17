@@ -13,7 +13,7 @@ import {
 const SkillIcon = ({ icon: Icon, label }) => (
     <div className="d-flex flex-column align-items-center" style={{ width: '64px', gap: '6px' }}>
         <Icon style={{ fontSize: '28px' }} />
-        <span style={{ fontSize: '11px', color: '#6c757d', lineHeight: 1.2, textAlign: 'center' }}>{label}</span>
+        <span style={{ fontSize: '11px', color: 'var(--skills-label-color)', lineHeight: 1.2, textAlign: 'center' }}>{label}</span>
     </div>
 );
 
@@ -62,7 +62,7 @@ const Skills = () => {
         <section
             id="skills"
             className="py-5 text-center"
-            style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}
+            style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}
         >
             <motion.div
                 ref={ref}

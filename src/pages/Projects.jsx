@@ -32,7 +32,7 @@ const Projects = () => {
         <section
             id="projects"
             className="py-5 text-center"
-            style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}
+            style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}
         >
             <div className="container">
                 <h2 className="fw-bold mb-5">Mes projets</h2>
@@ -51,10 +51,10 @@ const Projects = () => {
                             variants={cardVariants}
                             transition={{ duration: 0.4 }}
                         >
-                            <div className="card h-100 border-0" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderRadius: '0.75rem' }}>
+                            <div className="card h-100 border-0" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderRadius: '0.75rem', backgroundColor: 'var(--card-bg)' }}>
                                 <div className="card-body d-flex flex-column p-4">
                                     <div className="mb-3" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        {project.logo ?? <FaGithub size={42} style={{ color: '#212529' }} />}
+                                        {project.logo ?? <FaGithub size={42} style={{ color: 'var(--text)' }} />}
                                     </div>
                                     <h5 className="fw-bold mb-2">{project.title}</h5>
                                     <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
@@ -66,9 +66,9 @@ const Projects = () => {
                                                 fontSize: '11px',
                                                 padding: '3px 10px',
                                                 borderRadius: '99px',
-                                                background: '#f1f5ff',
-                                                color: '#0d6efd',
-                                                border: '1px solid #dce8ff',
+                                                background: 'var(--proj-tag-bg)',
+                                                color: 'var(--proj-tag-color)',
+                                                border: '1px solid var(--proj-tag-border)',
                                             }}>
                                                 {tech}
                                             </span>

@@ -8,7 +8,7 @@ const About = () => {
         <section
             id="about"
             className="py-5 text-center"
-            style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}
+            style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}
         >
             <motion.div
                 ref={ref}

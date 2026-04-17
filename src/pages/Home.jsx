@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { useTheme } from '../context/ThemeContext';
 
 const WORDS = ["Front-end", "Full-stack", "React", "Web"];
 const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo"];
@@ -10,6 +11,9 @@ const Home = () => {
     const [charIndex, setCharIndex] = useState(0);
     const [deleting, setDeleting] = useState(false);
     const canvasRef = useRef(null);
+    const { dark } = useTheme();
+    const darkRef = useRef(dark);
+    useEffect(() => { darkRef.current = dark; }, [dark]);
 
     useEffect(() => {
         const word = WORDS[wordIndex];
@@ -62,7 +66,7 @@ const Home = () => {
             particles.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0,0,0,${p.o})`;
+                ctx.fillStyle = `rgba(${darkRef.current ? '255,255,255' : '0,0,0'},${p.o})`;
                 ctx.fill();
                 p.x += p.dx;
                 p.y += p.dy;
@@ -86,7 +90,7 @@ const Home = () => {
         <section
             id="home"
             className="vh-100 d-flex align-items-center pt-5"
-            style={{ backgroundColor: '#FEFEFE', position: 'relative', overflow: 'hidden' }}
+            style={{ backgroundColor: 'var(--bg)', position: 'relative', overflow: 'hidden' }}
         >
             <canvas
                 ref={canvasRef}
@@ -98,7 +102,7 @@ const Home = () => {
                 <span style={{
                     fontSize: '13px',
                     letterSpacing: '0.07em',
-                    color: '#6c757d',
+                    color: 'var(--skills-label-color)',
                     textTransform: 'uppercase',
                     display: 'block',
                     marginBottom: '1rem'
@@ -111,7 +115,7 @@ const Home = () => {
                 <div className="d-flex justify-content-center align-items-center gap-2 mt-3" style={{ minHeight: '36px' }}>
                     <p className="lead text-muted mb-0">Développeur</p>
                     <p className="lead fw-bold mb-0" style={{
-                        borderRight: '2px solid #212529',
+                        borderRight: '2px solid var(--text)',
                         paddingRight: '3px',
                         minWidth: '2ch'
                     }}>
@@ -124,7 +128,8 @@ const Home = () => {
                         href="https://www.linkedin.com/in/valentin-combier"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-decoration-none text-dark"
+                        className="text-decoration-none"
+                        style={{ color: 'var(--text)' }}
                     >
                         <FaLinkedin />
                     </a>
@@ -132,7 +137,8 @@ const Home = () => {
                         href="https://github.com/ValentinCmbr"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-decoration-none text-dark"
+                        className="text-decoration-none"
+                        style={{ color: 'var(--text)' }}
                     >
                         <FaGithub />
                     </a>
@@ -144,9 +150,9 @@ const Home = () => {
                             fontSize: '12px',
                             padding: '4px 14px',
                             borderRadius: '99px',
-                            background: '#f1f1f1',
-                            color: '#555',
-                            border: '1px solid #e0e0e0'
+                            background: 'var(--tag-bg)',
+                            color: 'var(--tag-color)',
+                            border: '1px solid var(--tag-border)'
                         }}>
                             {tech}
                         </span>

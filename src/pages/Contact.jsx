@@ -49,7 +49,7 @@ const Contact = () => {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
     return (
-        <section id="contact" className="py-5 text-center" style={{backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3'}}>
+        <section id="contact" className="py-5 text-center" style={{backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)'}}>
             <motion.div
                 ref={ref}
                 className="container"

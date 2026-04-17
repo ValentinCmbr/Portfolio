@@ -11,6 +11,7 @@ import ScrollToTopButton from "./components/ScrollTopButton";
 import Loader from "./components/Loader";
 import {motion} from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -29,6 +30,7 @@ function App() {
     }, []);
 
     return (
+        <ThemeProvider>
         <>
             {loading ? (
                 <Loader />
@@ -51,6 +53,7 @@ function App() {
                 </motion.div>
             )}
         </>
+        </ThemeProvider>
     );
 }
 

@@ -26,13 +26,13 @@ const TimelineItem = ({ title, company, type, date, description = [] }) => (
                     <h5 className="fw-bold mb-0">{title}</h5>
                     <span className="text-muted" style={{ fontSize: '0.9rem' }}>{company}</span>
                 </div>
-                <span className="badge rounded-pill" style={{ backgroundColor: '#e8eef8', color: '#0d6efd', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                <span className="badge rounded-pill" style={{ backgroundColor: 'var(--badge-bg)', color: 'var(--badge-color)', fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
                     {type}
                 </span>
             </div>
             <p className="text-muted mb-0 mt-1" style={{ fontSize: '0.82rem' }}>{date}</p>
             {description.length > 0 && (
-                <ul className="mt-2 mb-0 ps-3" style={{ fontSize: '0.875rem', color: '#444' }}>
+                <ul className="mt-2 mb-0 ps-3" style={{ fontSize: '0.875rem', color: 'var(--detail-color)' }}>
                     {description.map((item) => <li key={item}>{item}</li>)}
                 </ul>
             )}
@@ -44,7 +44,7 @@ const Experiences = () => {
     const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
     return (
-        <section id="experiences" className="py-5" style={{ backgroundColor: '#FEFEFE', borderTop: '1px solid #d6e1f3' }}>
+        <section id="experiences" className="py-5" style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
             <div className="container">
                 <h2 className="text-center mb-5 fw-bold">Mon parcours</h2>
 

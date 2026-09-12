@@ -1,0 +1,30 @@
+// Custom Bootstrap build — only the pieces this site actually uses.
+// Full Bootstrap ships modal/dropdown/carousel/tooltip/etc. we never render;
+// importing selectively keeps the same classes while shrinking the CSS bundle.
+
+// Configuration
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// Layout & components
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/forms";
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/nav";
+@import "bootstrap/scss/navbar";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/badge";
+@import "bootstrap/scss/alert";
+@import "bootstrap/scss/helpers/position"; // .fixed-top (Navbar)
+
+// Utilities (d-flex, gap-*, text-*, rounded-pill, shadow-sm, etc.)
+@import "bootstrap/scss/utilities/api";

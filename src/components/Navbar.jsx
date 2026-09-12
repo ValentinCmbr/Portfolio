@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import TypewriterText from './TypeWriterText';
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
     const { dark, toggle } = useTheme();
+    const [open, setOpen] = useState(false);
 
     return (
         <nav className="navbar navbar-expand-lg fixed-top shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border)' }}>
@@ -15,15 +17,17 @@ const Navbar = () => {
                     <button
                         className="navbar-toggler"
                         type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#navbarNav"
+                        aria-expanded={open}
+                        aria-controls="navbarNav"
+                        aria-label="Basculer la navigation"
+                        onClick={() => setOpen((o) => !o)}
                         style={{ border: '1px solid var(--border)' }}
                     >
                         <span className="navbar-toggler-icon"></span>
                     </button>
                 </div>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav ms-auto">
+                <div className={`collapse navbar-collapse${open ? ' show' : ''}`} id="navbarNav">
+                    <ul className="navbar-nav ms-auto" onClick={() => setOpen(false)}>
                         <li className="nav-item"><a className="nav-link" href="#home">Accueil</a></li>
                         <li className="nav-item"><a className="nav-link" href="#about">À propos</a></li>
                         <li className="nav-item"><a className="nav-link" href="#skills">Mes compétences</a></li>

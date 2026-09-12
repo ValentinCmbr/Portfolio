@@ -1,10 +1,7 @@
 import Home from "./pages/Home";
-import Formations from "./pages/Formations";
-import Experiences from "./pages/Experiences";
 import About from "./pages/About";
 import Navbar from "./components/Navbar";
-import Contact from "./pages/Contact";
-import {useState, useEffect} from "react";
+import {useState, useEffect, lazy, Suspense} from "react";
 import Projects from "./pages/Projects";
 import Skills from "./pages/Skills";
 import ScrollToTopButton from "./components/ScrollTopButton";
@@ -13,6 +10,10 @@ import {motion} from "framer-motion";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ThemeProvider } from "./context/ThemeContext";
+
+const Experiences = lazy(() => import("./pages/Experiences"));
+const Formations = lazy(() => import("./pages/Formations"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -46,9 +47,11 @@ function App() {
                     <About/>
                     <Skills/>
                     <Projects/>
-                    <Experiences/>
-                    <Formations/>
-                    <Contact/>
+                    <Suspense fallback={null}>
+                        <Experiences/>
+                        <Formations/>
+                        <Contact/>
+                    </Suspense>
                     <ScrollToTopButton/>
                     <Analytics />
                     <SpeedInsights />

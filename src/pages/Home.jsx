@@ -3,7 +3,9 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { useTheme } from '../context/ThemeContext';
 
 const WORDS = ["Front-end", "Full-stack", "React", "Web"];
-const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo"];
+const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo", "Salesforce"];
+// Pas de CV à jour pour l'instant — repasser à true dès qu'un CV est prêt à publier.
+const SHOW_CV_BUTTON = false;
 
 const Home = () => {
     const [displayed, setDisplayed] = useState("");
@@ -107,7 +109,7 @@ const Home = () => {
                     display: 'block',
                     marginBottom: '1rem'
                 }}>
-                    Disponible · CDI / CDD
+                    Technicien support applicatif & Administrateur Salesforce
                 </span>
 
                 <h1 className="fw-bold">Salut, moi c'est Valentin 👋</h1>
@@ -162,13 +164,15 @@ const Home = () => {
                 <div className="d-flex justify-content-center gap-3 mt-4">
                     <a href="#projects" className="btn btn-dark px-4">Mes projets</a>
                     <a href="#contact" className="btn btn-outline-dark px-4">Me contacter</a>
-                    <a
-                        href="/CV_Dev.pdf"
-                        download="CV_Valentin_Combier.pdf"
-                        className="btn btn-outline-dark px-4"
-                    >
-                        Télécharger CV
-                    </a>
+                    {SHOW_CV_BUTTON && (
+                        <a
+                            href="/CV_Dev.pdf"
+                            download="CV_Valentin_Combier.pdf"
+                            className="btn btn-outline-dark px-4"
+                        >
+                            Télécharger CV
+                        </a>
+                    )}
                 </div>
 
             </div>

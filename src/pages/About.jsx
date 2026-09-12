@@ -31,9 +31,8 @@ const About = () => {
                             interface, j'aime que le résultat soit utile autant que propre.
                         </p>
                         <p>
-                            Aujourd'hui je cherche un poste en <strong>CDI / CDD</strong> où je peux continuer
-                            à progresser sur des projets qui ont du sens, dans une équipe où la qualité du code
-                            et la collaboration comptent vraiment.
+                            Je continue à progresser sur des projets qui ont du sens, dans une équipe où la
+                            qualité du code et la collaboration comptent vraiment.
                         </p>
                     </div>
                 </div>

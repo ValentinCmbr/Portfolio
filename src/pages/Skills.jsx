@@ -5,7 +5,7 @@ import {
     FaReact, FaHtml5, FaCss3Alt, FaJsSquare,
     FaPhp, FaSymfony, FaGitAlt, FaDatabase
 } from 'react-icons/fa';
-import { SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains, SiOdoo } from 'react-icons/si';
+import { SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains, SiOdoo, SiSalesforce } from 'react-icons/si';
 import {
     BiLogoBootstrap, BiLogoJava, BiLogoNodejs,
     BiLogoPython, BiLogoSpringBoot, BiLogoVuejs
@@ -52,6 +52,12 @@ const categories = [
             { icon: SiVercel,    label: "Vercel" },
             { icon: SiJetbrains, label: "JetBrains" },
             { icon: SiOdoo,      label: "Odoo" },
+        ]
+    },
+    {
+        title: "Support & CRM",
+        skills: [
+            { icon: SiSalesforce, label: "Salesforce" },
         ]
     },
 ];

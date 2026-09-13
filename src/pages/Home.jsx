@@ -47,7 +47,7 @@ const Home = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        let animId;
+        let animId = null;
         let particles = [];
 
         const init = () => {
@@ -78,12 +78,30 @@ const Home = () => {
             animId = requestAnimationFrame(draw);
         };
 
+        const start = () => {
+            if (animId === null) draw();
+        };
+        const stop = () => {
+            if (animId !== null) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            }
+        };
+
         init();
-        draw();
         window.addEventListener("resize", init);
 
+        // Only run the particle animation while the hero is actually on screen —
+        // no point burning CPU/battery drawing a section the user has scrolled past.
+        const observer = new IntersectionObserver(
+            ([entry]) => (entry.isIntersecting ? start() : stop()),
+            { threshold: 0 }
+        );
+        observer.observe(canvas);
+
         return () => {
-            cancelAnimationFrame(animId);
+            observer.disconnect();
+            stop();
             window.removeEventListener("resize", init);
         };
     }, []);
@@ -132,6 +150,7 @@ const Home = () => {
                         rel="noopener noreferrer"
                         className="text-decoration-none"
                         style={{ color: 'var(--text)' }}
+                        aria-label="LinkedIn de Valentin Combier"
                     >
                         <FaLinkedin />
                     </a>
@@ -141,6 +160,7 @@ const Home = () => {
                         rel="noopener noreferrer"
                         className="text-decoration-none"
                         style={{ color: 'var(--text)' }}
+                        aria-label="GitHub de Valentin Combier"
                     >
                         <FaGithub />
                     </a>
@@ -148,10 +168,9 @@ const Home = () => {
 
                 <div className="d-flex justify-content-center flex-wrap gap-2 mt-4">
                     {TECHS.map(tech => (
-                        <span key={tech} style={{
+                        <span key={tech} className="theme-tag" style={{
                             fontSize: '12px',
                             padding: '4px 14px',
-                            borderRadius: '99px',
                             background: 'var(--tag-bg)',
                             color: 'var(--tag-color)',
                             border: '1px solid var(--tag-border)'

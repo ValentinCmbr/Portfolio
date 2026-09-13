@@ -72,16 +72,16 @@ const Contact = () => {
                         />
 
                         <div className="mb-3 text-start">
-                            <label className="form-label">Nom</label>
-                            <input type="text" name="name" className="form-control" required maxLength={100} />
+                            <label htmlFor="contact-name" className="form-label">Nom</label>
+                            <input id="contact-name" type="text" name="name" className="form-control" required maxLength={100} />
                         </div>
                         <div className="mb-3 text-start">
-                            <label className="form-label">Email</label>
-                            <input type="email" name="email" className="form-control" required maxLength={150} />
+                            <label htmlFor="contact-email" className="form-label">Email</label>
+                            <input id="contact-email" type="email" name="email" className="form-control" required maxLength={150} />
                         </div>
                         <div className="mb-3 text-start">
-                            <label className="form-label">Message</label>
-                            <textarea name="message" className="form-control" rows="4" required maxLength={2000}></textarea>
+                            <label htmlFor="contact-message" className="form-label">Message</label>
+                            <textarea id="contact-message" name="message" className="form-control" rows="4" required maxLength={2000}></textarea>
                         </div>
 
                         {error && <div className="alert alert-warning py-2">{error}</div>}

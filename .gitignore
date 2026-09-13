@@ -25,3 +25,9 @@ yarn-error.log*
 .vscode/launch.json
 .idea/
 .claude/
+.vercel
+.env*
+
+# SSH deploy key material — never belongs in the repo, even generated locally.
+deploy_key
+deploy_key.pub

@@ -51,7 +51,7 @@ const Projects = () => {
                             variants={cardVariants}
                             transition={{ duration: 0.4 }}
                         >
-                            <div className="card h-100 border-0" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.07)', borderRadius: '0.75rem', backgroundColor: 'var(--card-bg)' }}>
+                            <div className="card h-100 border-0 theme-card" style={{ backgroundColor: 'var(--card-bg)' }}>
                                 <div className="card-body d-flex flex-column p-4">
                                     <div className="mb-3" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {project.logo ?? <FaGithub size={42} style={{ color: 'var(--text)' }} />}
@@ -62,10 +62,9 @@ const Projects = () => {
                                     </p>
                                     <div className="d-flex flex-wrap justify-content-center gap-1 mb-4">
                                         {project.techs.map((tech) => (
-                                            <span key={tech} style={{
+                                            <span key={tech} className="theme-tag" style={{
                                                 fontSize: '11px',
                                                 padding: '3px 10px',
-                                                borderRadius: '99px',
                                                 background: 'var(--proj-tag-bg)',
                                                 color: 'var(--proj-tag-color)',
                                                 border: '1px solid var(--proj-tag-border)',
@@ -79,7 +78,6 @@ const Projects = () => {
                                         className="mt-auto btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{ borderRadius: '0.5rem' }}
                                     >
                                         {project.link.icon}
                                         {project.link.label}

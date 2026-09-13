@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import TypewriterText from './TypeWriterText';
 import { FaSun, FaMoon } from 'react-icons/fa';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, STYLES } from '../context/ThemeContext';
 
 const Navbar = () => {
-    const { dark, toggle } = useTheme();
+    const { dark, toggle, style, setStyle } = useTheme();
     const [open, setOpen] = useState(false);
 
     return (
         <nav className="navbar navbar-expand-lg fixed-top shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border)' }}>
             <div className="container">
-                <a className="navbar-brand" href="#home">
+                <a className="navbar-brand" href="#home" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700 }}>
                     <TypewriterText text="Valentin" />
                 </a>
                 <div className="d-flex align-items-center gap-2 ms-auto">
@@ -37,20 +37,39 @@ const Navbar = () => {
                         <li className="nav-item"><a className="nav-link" href="#contact">Contact</a></li>
                     </ul>
                 </div>
-                <button
-                        onClick={toggle}
-                        className="btn btn-sm"
+                <div className="d-flex align-items-center gap-2">
+                    <select
+                        value={style}
+                        onChange={(e) => setStyle(e.target.value)}
+                        className="theme-pill"
                         style={{
                             border: '1px solid var(--border)',
-                            borderRadius: '99px',
+                            padding: '5px 10px',
+                            fontSize: '12px',
+                            color: 'var(--text)',
+                            backgroundColor: 'var(--tag-bg)',
+                            cursor: 'pointer',
+                        }}
+                        aria-label="Choisir un style visuel"
+                    >
+                        {STYLES.map(s => (
+                            <option key={s.id} value={s.id}>{s.label}</option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={toggle}
+                        className="btn btn-sm theme-pill"
+                        style={{
+                            border: '1px solid var(--border)',
                             padding: '5px 10px',
                             color: 'var(--text)',
                             backgroundColor: 'var(--tag-bg)',
                         }}
-                        aria-label="Basculer le thème"
+                        aria-label="Basculer le thème clair/sombre"
                     >
                         {dark ? <FaSun size={14} /> : <FaMoon size={14} />}
                     </button>
+                </div>
             </div>
         </nav>
     );

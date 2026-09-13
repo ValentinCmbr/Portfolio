@@ -33,7 +33,7 @@ const Loader = () => {
                     width: 48,
                     height: 48,
                     border: '6px solid var(--border)',
-                    borderTop: '6px solid #0d6efd',
+                    borderTop: '6px solid var(--accent)',
                     borderRadius: '50%'
                 }}
             />

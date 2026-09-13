@@ -89,16 +89,16 @@ const Skills = () => {
                     {FILTERS.map(f => (
                         <button
                             key={f}
+                            className="theme-pill"
                             onClick={() => setActive(f)}
                             style={{
                                 fontSize: '13px',
                                 padding: '6px 18px',
-                                borderRadius: '99px',
                                 border: '1px solid',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease',
-                                borderColor: active === f ? '#0d6efd' : 'var(--border)',
-                                backgroundColor: active === f ? '#0d6efd' : 'var(--tag-bg)',
+                                borderColor: active === f ? 'var(--accent)' : 'var(--border)',
+                                backgroundColor: active === f ? 'var(--accent)' : 'var(--tag-bg)',
                                 color: active === f ? '#fff' : 'var(--tag-color)',
                             }}
                         >

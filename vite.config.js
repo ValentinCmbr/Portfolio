@@ -3,13 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-      }
-    }
-  },
   css: {
     preprocessorOptions: {
       scss: {
@@ -18,5 +11,16 @@ export default defineConfig({
         silenceDeprecations: ['import', 'color-functions', 'global-builtin', 'if-function'],
       }
     }
-  }
+  },
+  build: {
+    // Split the framework out of the app chunk: React barely changes between
+    // deploys, so a returning visitor keeps it cached while app code rolls over.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
 })

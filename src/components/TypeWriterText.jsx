@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const TypewriterText = ({ text, speed = 120 }) => {
-    const [displayed, setDisplayed] = useState('');
-    const [i, setI] = useState(0);
+    const [count, setCount] = useState(0);
 
     useEffect(() => {
-        if (i < text.length) {
-            const timeout = setTimeout(() => {
-                setDisplayed(prev => prev + text.charAt(i));
-                setI(i + 1);
-            }, speed);
-            return () => clearTimeout(timeout);
-        }
-    }, [i, text, speed]);
+        if (count >= text.length) return;
+        const timeout = setTimeout(() => setCount(c => c + 1), speed);
+        return () => clearTimeout(timeout);
+    }, [count, text, speed]);
 
     return (
         <span style={{ whiteSpace: 'nowrap' }}>
-            {displayed}
+            {text.slice(0, count)}
         </span>
     );
 };

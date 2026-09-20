@@ -1,59 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { useTheme } from '../context/ThemeContext';
+import RotatingWord from '../components/RotatingWord';
 
 const WORDS = ["Front-end", "Full-stack", "React", "Web"];
 const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo", "Salesforce"];
+const PARTICLE_COUNT = 40;
 // Pas de CV à jour pour l'instant — repasser à true dès qu'un CV est prêt à publier.
 const SHOW_CV_BUTTON = false;
 
 const Home = () => {
-    const [displayed, setDisplayed] = useState("");
-    const [wordIndex, setWordIndex] = useState(0);
-    const [charIndex, setCharIndex] = useState(0);
-    const [deleting, setDeleting] = useState(false);
     const canvasRef = useRef(null);
     const { dark } = useTheme();
+    // The rAF loop reads the theme through a ref, so the canvas effect can stay
+    // mount-only instead of tearing down and reallocating on every toggle.
     const darkRef = useRef(dark);
     useEffect(() => { darkRef.current = dark; }, [dark]);
 
     useEffect(() => {
-        const word = WORDS[wordIndex];
-        let timeout;
-
-        if (!deleting) {
-            timeout = setTimeout(() => {
-                setDisplayed(word.slice(0, charIndex + 1));
-                setCharIndex(i => i + 1);
-                if (charIndex + 1 === word.length) {
-                    setTimeout(() => setDeleting(true), 950);
-                }
-            }, 75);
-        } else {
-            timeout = setTimeout(() => {
-                setDisplayed(word.slice(0, charIndex - 1));
-                setCharIndex(i => i - 1);
-                if (charIndex - 1 === 0) {
-                    setDeleting(false);
-                    setWordIndex(i => (i + 1) % WORDS.length);
-                }
-            }, 60);
-        }
-
-        return () => clearTimeout(timeout);
-    }, [charIndex, deleting, wordIndex]);
-
-    useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
+        // Respect the OS "reduce motion" setting: no canvas work at all for
+        // visitors who asked not to see decorative animation.
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (reduceMotion.matches) return;
+
         const ctx = canvas.getContext("2d");
         let animId = null;
+        let resizeId = null;
         let particles = [];
 
         const init = () => {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
-            particles = Array.from({ length: 40 }, () => ({
+            particles = Array.from({ length: PARTICLE_COUNT }, () => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 r: Math.random() * 1.8 + 0.4,
@@ -65,16 +46,19 @@ const Home = () => {
 
         const draw = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
+            // Hoisted out of the loop: the rgb triplet is identical for every
+            // particle, so building it once per frame beats once per particle.
+            const rgb = darkRef.current ? '255,255,255' : '0,0,0';
+            for (const p of particles) {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${darkRef.current ? '255,255,255' : '0,0,0'},${p.o})`;
+                ctx.fillStyle = `rgba(${rgb},${p.o})`;
                 ctx.fill();
                 p.x += p.dx;
                 p.y += p.dy;
                 if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
                 if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-            });
+            }
             animId = requestAnimationFrame(draw);
         };
 
@@ -88,8 +72,15 @@ const Home = () => {
             }
         };
 
+        // Resize fires in bursts while dragging a window edge; reallocating
+        // every particle on each event is pure waste, so coalesce to one frame.
+        const onResize = () => {
+            cancelAnimationFrame(resizeId);
+            resizeId = requestAnimationFrame(init);
+        };
+
         init();
-        window.addEventListener("resize", init);
+        window.addEventListener("resize", onResize);
 
         // Only run the particle animation while the hero is actually on screen —
         // no point burning CPU/battery drawing a section the user has scrolled past.
@@ -102,7 +93,8 @@ const Home = () => {
         return () => {
             observer.disconnect();
             stop();
-            window.removeEventListener("resize", init);
+            cancelAnimationFrame(resizeId);
+            window.removeEventListener("resize", onResize);
         };
     }, []);
 
@@ -114,6 +106,7 @@ const Home = () => {
         >
             <canvas
                 ref={canvasRef}
+                aria-hidden="true"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
             />
 
@@ -134,13 +127,7 @@ const Home = () => {
 
                 <div className="d-flex justify-content-center align-items-center gap-2 mt-3" style={{ minHeight: '36px' }}>
                     <p className="lead text-muted mb-0">Développeur</p>
-                    <p className="lead fw-bold mb-0" style={{
-                        borderRight: '2px solid var(--text)',
-                        paddingRight: '3px',
-                        minWidth: '2ch'
-                    }}>
-                        {displayed}
-                    </p>
+                    <RotatingWord words={WORDS} />
                 </div>
 
                 <div className="d-flex justify-content-center gap-4 mt-4 fs-3">

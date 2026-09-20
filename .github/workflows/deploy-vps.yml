@@ -7,6 +7,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Ni le build ni le rsync n'écrivent sur le repo.
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -21,8 +24,10 @@ jobs:
           VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
           VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
 
+      # Épinglé au SHA plutôt qu'au tag : ce step reçoit VPS_SSH_KEY, et un tag
+      # git peut être repointé par le mainteneur. SHA du tag 9.0.1.
       - name: Upload build to the VPS
-        uses: burnett01/rsync-deployments@9.0.1
+        uses: burnett01/rsync-deployments@155b6d6c1219ab2224c20c58d423a3f1b850395f # 9.0.1
         with:
           switches: -avzr --delete
           path: dist/

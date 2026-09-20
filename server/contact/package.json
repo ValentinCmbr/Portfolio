@@ -1,0 +1,17 @@
+{
+  "name": "portfolio-contact",
+  "version": "1.0.0",
+  "description": "Endpoint d'envoi du formulaire de contact — relaie vers le SMTP authentifié OVH",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.15"
+  }
+}

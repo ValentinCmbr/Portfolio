@@ -1,58 +1,51 @@
 import { useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
 import useInViewOnce from '../hooks/useInViewOnce';
 
-const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
-const LS_KEY = 'contact_last_sent';
-
-const readLastSent = () => {
-    try { return parseInt(localStorage.getItem(LS_KEY) || '0', 10); } catch { return 0; }
-};
-
-const writeLastSent = () => {
-    try { localStorage.setItem(LS_KEY, Date.now().toString()); } catch { /* rate limit not persisted */ }
-};
+const ENDPOINT = '/api/contact';
+const FALLBACK_EMAIL = 'contact@valentincombier.com';
 
 const Contact = () => {
     const form = useRef();
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState(null);
+    // Pendant une bascule vers Vercel, l'endpoint n'existe pas : on bascule sur
+    // l'adresse en clair plutôt que d'afficher une erreur sans issue.
+    const [unavailable, setUnavailable] = useState(false);
     const [ref, inView] = useInViewOnce();
 
-    const getCooldownRemaining = () => {
-        const remaining = COOLDOWN_MS - (Date.now() - readLastSent());
-        return remaining > 0 ? Math.ceil(remaining / 60000) : 0;
-    };
-
-    const sendEmail = (e) => {
+    const sendMessage = async (e) => {
         e.preventDefault();
         setError(null);
-
-        // Honeypot: a real visitor never sees this field, so anything in it is a bot.
-        if (form.current.website.value) return;
-
-        const cooldown = getCooldownRemaining();
-        if (cooldown > 0) {
-            setError(`Merci de patienter encore ${cooldown} minute(s) avant de renvoyer un message.`);
-            return;
-        }
-
         setSending(true);
 
-        emailjs.sendForm(
-            import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-            form.current,
-            import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-        )
-            .then(() => {
-                writeLastSent();
+        const data = Object.fromEntries(new FormData(form.current));
+
+        try {
+            const res = await fetch(ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (res.status === 404) {
+                setUnavailable(true);
+                return;
+            }
+
+            const payload = await res.json().catch(() => ({}));
+
+            if (res.ok) {
                 setSent(true);
-            }, () => {
-                setError("Une erreur est survenue, veuillez réessayer plus tard.");
-            })
-            .finally(() => setSending(false));
+            } else {
+                setError(payload.error || 'Une erreur est survenue, veuillez réessayer plus tard.');
+            }
+        } catch {
+            // Échec réseau : l'origine est injoignable, même issue qu'un 404.
+            setUnavailable(true);
+        } finally {
+            setSending(false);
+        }
     };
 
     return (
@@ -60,8 +53,15 @@ const Contact = () => {
             <div ref={ref} className={`container reveal${inView ? ' is-visible' : ''}`}>
                 <h2 className="fw-bold mb-4">Me contacter</h2>
 
-                {!sent ? (
-                    <form ref={form} onSubmit={sendEmail} className="mx-auto" style={{ maxWidth: '600px' }}>
+                {unavailable ? (
+                    <div className="alert alert-warning mx-auto" style={{ maxWidth: '600px' }} role="alert">
+                        Le formulaire est momentanément indisponible. Écrivez-moi directement à{' '}
+                        <a href={`mailto:${FALLBACK_EMAIL}`}>{FALLBACK_EMAIL}</a>.
+                    </div>
+                ) : sent ? (
+                    <div className="alert alert-success" role="status">Message bien envoyé, merci ! ✅</div>
+                ) : (
+                    <form ref={form} onSubmit={sendMessage} className="mx-auto" style={{ maxWidth: '600px' }}>
                         <input
                             type="text"
                             name="website"
@@ -90,8 +90,6 @@ const Contact = () => {
                             {sending ? 'Envoi en cours…' : 'Envoyer'}
                         </button>
                     </form>
-                ) : (
-                    <div className="alert alert-success" role="status">Message bien envoyé, merci ! ✅</div>
                 )}
             </div>
         </section>

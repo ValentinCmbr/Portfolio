@@ -31,3 +31,7 @@ yarn-error.log*
 # SSH deploy key material — never belongs in the repo, even generated locally.
 deploy_key
 deploy_key.pub
+
+# Dependances du service de contact (deploye separement sur le VPS)
+server/**/node_modules
+server/**/.env

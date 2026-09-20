@@ -18,11 +18,9 @@ jobs:
           node-version: 20
 
       - run: npm ci
+      # Plus aucun secret au build : les identifiants du formulaire vivent
+      # côté serveur, dans server/contact/.env sur le VPS.
       - run: npm run build
-        env:
-          VITE_EMAILJS_SERVICE_ID: ${{ secrets.VITE_EMAILJS_SERVICE_ID }}
-          VITE_EMAILJS_TEMPLATE_ID: ${{ secrets.VITE_EMAILJS_TEMPLATE_ID }}
-          VITE_EMAILJS_PUBLIC_KEY: ${{ secrets.VITE_EMAILJS_PUBLIC_KEY }}
 
       # Épinglé au SHA plutôt qu'au tag : ce step reçoit VPS_SSH_KEY, et un tag
       # git peut être repointé par le mainteneur. SHA du tag 9.0.1.

@@ -36,10 +36,30 @@ Cloudflare + ton VPS déjà payé + le plan gratuit de Vercel).
    deux fichiers générés sur le VPS :
    - `/etc/nginx/ssl/cloudflare-origin.pem` (certificat)
    - `/etc/nginx/ssl/cloudflare-origin.key` (clé privée)
-4. Installe `portfolio.nginx.conf` depuis ce dossier (voir le commentaire
-   en haut de ce fichier pour les commandes exactes), après avoir remplacé
-   `your-domain.tld` par ton vrai domaine.
+4. Installe `portfolio.nginx.conf` **et** `security-headers.conf` depuis ce
+   dossier (voir le commentaire en haut du premier pour les commandes
+   exactes), après avoir remplacé `your-domain.tld` par ton vrai domaine.
 5. `sudo nginx -t && sudo systemctl reload nginx`
+6. Vérifie que les en-têtes sortent bien, y compris sur un asset :
+   ```
+   curl -sSI https://ton-domaine.tld/ | grep -iE 'content-security|strict-transport|x-frame|nosniff'
+   curl -sSI https://ton-domaine.tld/assets/ | head -20
+   ```
+   Les deux `location` incluent le même fichier justement parce que nginx
+   cesse d'hériter des `add_header` dès qu'un bloc enfant en déclare un.
+
+### À propos de HSTS `preload`
+
+Le snippet envoie `max-age=63072000; includeSubDomains` mais **pas**
+`preload`, alors que le déploiement Vercel, lui, l'envoie.
+
+C'est volontaire : `preload` n'a d'effet qu'une fois le domaine soumis sur
+<https://hstspreload.org>, et cette inscription est câblée en dur dans les
+navigateurs. La retirer prend des mois. Tant qu'il y a une chance qu'un
+sous-domaine doive un jour répondre en HTTP simple, ne l'ajoute pas.
+
+Si tu veux le faire : ajoute `preload` au snippet, laisse tourner quelques
+semaines, puis soumets le domaine.
 
 ## 3. GitHub Actions : déploiement automatique sur le VPS
 

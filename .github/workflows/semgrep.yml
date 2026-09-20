@@ -1,0 +1,35 @@
+name: Semgrep
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  # Les règles du registry évoluent sans que le code bouge : un passage
+  # hebdomadaire rattrape les nouvelles règles sur du code déjà mergé.
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  scan:
+    name: Analyse statique
+    runs-on: ubuntu-latest
+    # Le scan ne publie rien : lecture seule suffit.
+    permissions:
+      contents: read
+    # L'image officielle embarque semgrep-core, ce qui évite d'installer
+    # Python et ses dépendances à chaque exécution.
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+
+      # --error : le job échoue si une règle matche.
+      # --metrics=off : aucune remontée de télémétrie vers semgrep.dev.
+      - name: semgrep scan
+        run: >
+          semgrep scan
+          --config=p/javascript
+          --config=p/react
+          --config=p/secrets
+          --metrics=off
+          --error

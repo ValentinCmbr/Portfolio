@@ -1,23 +1,8 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import useInViewOnce from '../hooks/useInViewOnce';
 import '../styles/Timeline.css';
 
-const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: {
-            staggerChildren: 0.15
-        }
-    }
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-};
-
 export const TimelineItem = ({ heading, subheading, badge, meta, description }) => (
-    <motion.div className="timeline-item" variants={itemVariants}>
+    <div className="timeline-item reveal-item reveal-item--from-left">
         <div className="timeline-dot"></div>
         <div className="timeline-content">
             <div className="d-flex justify-content-between align-items-start flex-wrap gap-1">
@@ -44,11 +29,11 @@ export const TimelineItem = ({ heading, subheading, badge, meta, description }) 
                 )
             )}
         </div>
-    </motion.div>
+    </div>
 );
 
 export const TimelineSection = ({ id, title, children }) => {
-    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+    const [ref, inView] = useInViewOnce();
 
     return (
         <section id={id} className="py-5" style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
@@ -57,15 +42,12 @@ export const TimelineSection = ({ id, title, children }) => {
 
                 <div className="row justify-content-center">
                     <div className="col-lg-8">
-                        <motion.div
+                        <div
                             ref={ref}
-                            className="timeline"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate={inView ? "visible" : "hidden"}
+                            className={`timeline${inView ? ' is-visible' : ''}`}
                         >
                             {children}
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </div>

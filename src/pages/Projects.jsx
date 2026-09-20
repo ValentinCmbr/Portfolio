@@ -1,7 +1,6 @@
-import ZenaviaLogo from "../components/ZenaviaLogo";
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import ZenaviaLogo from "../components/ZenaviaLogo";
+import useInViewOnce from '../hooks/useInViewOnce';
 
 const projects = [
     {
@@ -15,18 +14,13 @@ const projects = [
         logo: null,
         title: "Portfolio",
         description: "Mon portfolio personnel — conçu et développé de A à Z pour présenter mon parcours.",
-        techs: ["React", "Vite", "Framer Motion"],
+        techs: ["React", "Vite", "Bootstrap"],
         link: { href: "https://github.com/ValentinCmbr/Portfolio", label: "Voir le code", icon: <FaGithub size={14} /> },
     },
 ];
 
-const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-};
-
 const Projects = () => {
-    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+    const [ref, inView] = useInViewOnce();
 
     return (
         <section
@@ -37,19 +31,15 @@ const Projects = () => {
             <div className="container">
                 <h2 className="fw-bold mb-5">Mes projets</h2>
 
-                <motion.div
+                <div
                     ref={ref}
-                    className="row justify-content-center"
-                    initial="hidden"
-                    animate={inView ? "visible" : "hidden"}
-                    transition={{ staggerChildren: 0.15 }}
+                    className={`row justify-content-center${inView ? ' is-visible' : ''}`}
                 >
-                    {projects.map((project) => (
-                        <motion.div
+                    {projects.map((project, index) => (
+                        <div
                             key={project.title}
-                            className="col-md-6 col-lg-4 mb-4"
-                            variants={cardVariants}
-                            transition={{ duration: 0.4 }}
+                            className="col-md-6 col-lg-4 mb-4 reveal-item"
+                            style={{ '--stagger-index': index }}
                         >
                             <div className="card h-100 border-0 theme-card" style={{ backgroundColor: 'var(--card-bg)' }}>
                                 <div className="card-body d-flex flex-column p-4">
@@ -84,9 +74,9 @@ const Projects = () => {
                                     </a>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     ))}
-                </motion.div>
+                </div>
             </div>
         </section>
     );

@@ -1,0 +1,158 @@
+/* Scroll-reveal and entrance animations.
+   These were framer-motion components; every one of them is a one-shot fade
+   plus a translate, which the compositor runs on its own without any JS on
+   the main thread. `useInViewOnce` only toggles the `is-visible` class. */
+
+/* ---------- Section reveal (About, Skills, Contact, Projects, Timeline) ---------- */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* ---------- Staggered children (project cards, timeline entries) ---------- */
+
+.reveal-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    transition-delay: calc(var(--stagger-index, 0) * 0.15s);
+}
+
+/* Timeline entries slide in from the rail instead of from below. */
+.reveal-item--from-left {
+    transform: translateX(-20px);
+}
+
+.is-visible > .reveal-item,
+.is-visible > * > .reveal-item {
+    opacity: 1;
+    transform: none;
+}
+
+/* The timeline receives its children as <TimelineItem> siblings, so their
+   order — and therefore their stagger delay — comes from the DOM. */
+.timeline.is-visible .timeline-item:nth-child(1)  { transition-delay: 0s; }
+.timeline.is-visible .timeline-item:nth-child(2)  { transition-delay: 0.15s; }
+.timeline.is-visible .timeline-item:nth-child(3)  { transition-delay: 0.30s; }
+.timeline.is-visible .timeline-item:nth-child(4)  { transition-delay: 0.45s; }
+.timeline.is-visible .timeline-item:nth-child(5)  { transition-delay: 0.60s; }
+.timeline.is-visible .timeline-item:nth-child(6)  { transition-delay: 0.75s; }
+.timeline.is-visible .timeline-item:nth-child(7)  { transition-delay: 0.90s; }
+.timeline.is-visible .timeline-item:nth-child(n+8) { transition-delay: 1.05s; }
+
+/* ---------- App entrance, once the loader clears ---------- */
+
+@keyframes app-enter {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.app-enter {
+    animation: app-enter 0.6s ease-out both;
+}
+
+/* ---------- Skills filter swap ---------- */
+
+@keyframes fade-swap {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Keyed on the active filter, so React replaces the node and the animation
+   restarts on every switch. */
+.fade-swap {
+    animation: fade-swap 0.25s ease-out both;
+}
+
+/* ---------- Loader ---------- */
+
+@keyframes loader-fade {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes loader-spin {
+    to { transform: rotate(360deg); }
+}
+
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg);
+    z-index: 2000;
+    animation: loader-fade 0.5s ease forwards;
+}
+
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 6px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: loader-spin 1s linear infinite;
+}
+
+/* ---------- Scroll-to-top button ---------- */
+
+/* Kept mounted and toggled with a class so the exit transition plays too —
+   an unmount would cut it off. */
+.scroll-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--badge-color);
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.scroll-top.is-visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-item,
+    .reveal-item--from-left {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .app-enter,
+    .fade-swap,
+    .loader-overlay,
+    .loader-spinner {
+        animation: none;
+    }
+
+    .scroll-top {
+        transition: none;
+    }
+}

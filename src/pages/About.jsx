@@ -1,8 +1,7 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import useInViewOnce from '../hooks/useInViewOnce';
 
 const About = () => {
-    const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+    const [ref, inView] = useInViewOnce();
 
     return (
         <section
@@ -10,13 +9,7 @@ const About = () => {
             className="py-5 text-center"
             style={{ backgroundColor: 'var(--bg)', borderTop: '1px solid var(--border)' }}
         >
-            <motion.div
-                ref={ref}
-                className="container"
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
+            <div ref={ref} className={`container reveal${inView ? ' is-visible' : ''}`}>
                 <h2 className="fw-bold mb-4">À propos de moi</h2>
                 <div className="row justify-content-center">
                     <div className="col-md-8">
@@ -36,7 +29,7 @@ const About = () => {
                         </p>
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </section>
     );
 };

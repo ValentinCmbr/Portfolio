@@ -76,7 +76,6 @@ Dans les réglages du repo -> Secrets and variables -> Actions, ajoute :
 | `VPS_USER` | Utilisateur SSH ayant accès en écriture à `/var/www/portfolio` |
 | `VPS_SSH_KEY` | Clé privée d'une **clé de déploiement dédiée** (voir ci-dessous) |
 | `VPS_TARGET_PATH` | `/var/www/portfolio/` |
-| `VITE_EMAILJS_SERVICE_ID` / `_TEMPLATE_ID` / `_PUBLIC_KEY` | mêmes valeurs que ton `.env.local` local |
 
 Génère une clé dédiée au déploiement plutôt que de réutiliser ta clé
 personnelle :

@@ -9,7 +9,21 @@
 // jamais sur une interface publique.
 
 import http from 'node:http';
+import { fileURLToPath } from 'node:url';
 import nodemailer from 'nodemailer';
+
+// Chargé ici plutôt que via `node --env-file` : PM2 ne lit pas les .env, et le
+// chemin est résolu depuis ce fichier, donc indépendant du dossier de lancement.
+// Les variables déjà présentes dans l'environnement gardent la priorité.
+if (typeof process.loadEnvFile !== 'function') {
+    console.error(`[contact] Node ${process.version} trop ancien — 20.12 minimum`);
+    process.exit(1);
+}
+try {
+    process.loadEnvFile(fileURLToPath(new URL('.env', import.meta.url)));
+} catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+}
 
 const PORT = Number(process.env.PORT || 8081);
 // Pas de valeur par défaut pour l'hôte : le fournisseur dépend du compte
@@ -33,11 +47,17 @@ const MAX_BODY_BYTES = 16 * 1024;
 const COOLDOWN_MS = 5 * 60 * 1000;
 const LIMITS = { name: 100, email: 150, message: 2000 };
 
+// Délais courts : avec ceux de nodemailer par défaut (2 min pour la connexion),
+// le visiteur aurait abandonné depuis longtemps quand le message finirait par
+// partir.
 const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: SMTP_PORT === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000,
 });
 
 // ---------------------------------------------------------------------------
@@ -69,7 +89,7 @@ const clientIp = (req) =>
 // Validation
 // ---------------------------------------------------------------------------
 
-// Un CR ou LF dans un champ réinjecté en en-tête (From, Reply-To, Subject)
+// Un CR ou LF dans un champ réinjecté en en-tête (Reply-To, Subject)
 // permettrait d'en ajouter d'autres. On les refuse plutôt que de les nettoyer.
 const hasControlChars = (value) => /[\r\n]/.test(value);
 
@@ -154,6 +174,73 @@ const readBody = (req) =>
         req.on('error', reject);
     });
 
+// Un site tiers peut poster en `text/plain` sans preflight CORS, depuis le
+// navigateur de chacun de ses visiteurs — donc depuis autant d'IP, ce qui
+// contourne toute limitation par IP. Exiger du JSON impose un preflight auquel
+// on ne répond pas, et l'Origin, quand le navigateur l'envoie, doit être ce
+// domaine.
+const isSameOrigin = (req) => {
+    const type = (req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+    if (type !== 'application/json') return false;
+
+    const origin = req.headers.origin;
+    return !origin || origin === `https://${req.headers.host}`;
+};
+
+// Renvoie true quand le créneau de l'IP doit être conservé : message envoyé,
+// ou bot piégé par le honeypot.
+const handleContact = async (req, res, ip) => {
+    let body;
+    try {
+        body = JSON.parse(await readBody(req));
+    } catch {
+        send(res, 400, { error: 'Requête invalide.' });
+        return false;
+    }
+
+    // Un textarea soumis encode chaque retour à la ligne en CRLF alors que son
+    // maxLength les compte pour un caractère : sans ça, un message à la limite
+    // côté navigateur la dépasserait ici.
+    if (body && typeof body.message === 'string') {
+        body.message = body.message.replace(/\r\n?/g, '\n');
+    }
+
+    const problem = validate(body);
+    if (problem) {
+        // Le honeypot renvoie un succès : inutile d'apprendre au bot qu'il est repéré.
+        if (body && body.website) {
+            send(res, 200, { ok: true });
+            return true;
+        }
+        send(res, 400, { error: problem });
+        return false;
+    }
+
+    if (!(await verifyTurnstile(body.turnstileToken, ip))) {
+        send(res, 400, { error: 'Vérification anti-robot échouée, merci de réessayer.' });
+        return false;
+    }
+
+    try {
+        await transporter.sendMail({
+            from: `"Formulaire portfolio" <${SMTP_USER}>`,
+            to: CONTACT_TO,
+            // Objet plutôt que chaîne : nodemailer encode le nom, alors qu'une
+            // virgule dans une chaîne brute y ajouterait un destinataire.
+            replyTo: { name: body.name, address: body.email },
+            subject: `Message de ${body.name}`,
+            text: `De : ${body.name} <${body.email}>\n\n${body.message}`,
+        });
+    } catch (err) {
+        console.error('[contact] envoi impossible:', err.message);
+        send(res, 502, { error: 'Une erreur est survenue, veuillez réessayer plus tard.' });
+        return false;
+    }
+
+    send(res, 200, { ok: true });
+    return true;
+};
+
 const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/health') {
         return send(res, 200, { ok: true });
@@ -162,6 +249,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== 'POST') {
         res.writeHead(405, { Allow: 'POST' });
         return res.end();
+    }
+
+    if (!isSameOrigin(req)) {
+        return send(res, 415, { error: 'Requête invalide.' });
     }
 
     const ip = clientIp(req);
@@ -174,40 +265,16 @@ const server = http.createServer(async (req, res) => {
         });
     }
 
-    let body;
+    // Créneau réservé avant le premier `await` : sinon des requêtes simultanées
+    // de la même IP passeraient toutes la vérification ci-dessus pendant que le
+    // premier envoi est en cours. Il est rendu si rien n'est parti, pour qu'une
+    // erreur de saisie ou une panne SMTP ne coûte pas 5 minutes au visiteur.
+    lastSeen.set(ip, Date.now());
+    let keep = false;
     try {
-        body = JSON.parse(await readBody(req));
-    } catch {
-        return send(res, 400, { error: 'Requête invalide.' });
-    }
-
-    const problem = validate(body);
-    if (problem) {
-        // Le honeypot renvoie un succès : inutile d'apprendre au bot qu'il est repéré.
-        if (body && body.website) return send(res, 200, { ok: true });
-        return send(res, 400, { error: problem });
-    }
-
-    if (!(await verifyTurnstile(body.turnstileToken, ip))) {
-        return send(res, 400, { error: 'Vérification anti-robot échouée, merci de réessayer.' });
-    }
-
-    try {
-        await transporter.sendMail({
-            from: `"Formulaire portfolio" <${SMTP_USER}>`,
-            to: CONTACT_TO,
-            replyTo: `${body.name.replace(/["<>]/g, '')} <${body.email}>`,
-            subject: `Message de ${body.name}`,
-            text: `De : ${body.name} <${body.email}>\n\n${body.message}`,
-        });
-
-        // Marqué seulement après un envoi réussi : une panne SMTP ne doit pas
-        // consommer le quota du visiteur.
-        lastSeen.set(ip, Date.now());
-        return send(res, 200, { ok: true });
-    } catch (err) {
-        console.error('[contact] envoi impossible:', err.message);
-        return send(res, 502, { error: 'Une erreur est survenue, veuillez réessayer plus tard.' });
+        keep = await handleContact(req, res, ip);
+    } finally {
+        if (!keep) lastSeen.delete(ip);
     }
 });
 

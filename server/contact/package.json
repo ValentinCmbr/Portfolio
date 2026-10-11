@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.12"
   },
   "dependencies": {
     "nodemailer": "^6.9.15"

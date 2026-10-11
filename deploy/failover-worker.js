@@ -17,6 +17,15 @@ const ORIGIN_TIMEOUT_MS = 4000;
 
 export default {
   async fetch(request) {
+    // Requests with a body (the contact form POST) go straight to the origin,
+    // with no timeout and no fallback: the body can only be read once, so it
+    // can't be replayed to Vercel, and Vercel has no /api/contact anyway. If
+    // the VPS is down, Cloudflare answers with a 52x and the form shows the
+    // plain email address instead.
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      return fetch(request);
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), ORIGIN_TIMEOUT_MS);
 

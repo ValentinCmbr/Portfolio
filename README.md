@@ -9,7 +9,7 @@ Mon portfolio personnel présentant mon parcours, mes compétences et mes projet
 - **React 18** + **Vite**
 - **Bootstrap 5** — mise en page et composants
 - **CSS** — animations (transitions et keyframes, sans dépendance JS)
-- **EmailJS** — formulaire de contact sans backend
+- **Node + nodemailer** — endpoint de contact auto-hébergé (`server/contact`)
 - **React Icons** — icônes
 
 ## Sections

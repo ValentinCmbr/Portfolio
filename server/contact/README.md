@@ -11,7 +11,8 @@ VPS échouerait la vérification et finirait en indésirables.
 
 ## Prérequis
 
-- Node ≥ 18 (le `fetch` natif sert à la vérification Turnstile)
+- Node ≥ 20.12 (`process.loadEnvFile` charge le `.env`, `fetch` natif pour
+  Turnstile) — vérifier avec `node --version` sur le VPS
 - PM2, déjà présent sur le VPS (`pm2-botmsd.service`)
 - **Un compte SMTP avec un mot de passe** — voir ci-dessous
 
@@ -80,6 +81,9 @@ pm2 start index.js --name portfolio-contact
 pm2 save
 ```
 
+PM2 ne lit pas les fichiers `.env` : c'est `index.js` qui charge celui posé à
+côté de lui, quel que soit le dossier depuis lequel le service est lancé.
+
 `pm2 save` est ce qui fait repartir le service au reboot, via l'unité systemd
 PM2 déjà installée pour ton bot. Sans lui, le service ne survit pas au
 redémarrage.
@@ -105,8 +109,9 @@ curl -s 127.0.0.1:8081/health
 | Contrôle | Où | Contournable ? |
 | --- | --- | --- |
 | Honeypot `website` | serveur | non |
+| `Content-Type: application/json` exigé, `Origin` vérifiée | serveur | non |
 | Délai de 5 min par IP | serveur, en mémoire | non |
-| Limitation nginx `10r/m` | en amont de Node | non |
+| Limitation nginx `10r/m` (répond 429) | en amont de Node | non |
 | Taille du corps (16 ko) | nginx + Node | non |
 | Longueur des champs | serveur | non |
 | Refus des CR/LF dans nom et email | serveur | non |
@@ -116,8 +121,14 @@ Le refus des retours chariot n'est pas cosmétique : le nom et l'email sont
 réinjectés dans les en-têtes `Reply-To` et `Subject`, et un CR permettrait d'en
 injecter d'autres.
 
-Le délai par IP n'est enregistré **qu'après un envoi réussi** — une panne SMTP
-ne doit pas consommer le quota du visiteur.
+Exiger du JSON n'est pas cosmétique non plus : un site tiers pourrait sinon
+poster en `text/plain`, sans preflight CORS, depuis le navigateur de chacun de
+ses visiteurs, donc depuis autant d'IP que de visiteurs.
+
+Le créneau d'une IP est réservé **dès l'arrivée de la requête**, pour que des
+envois simultanés ne passent pas tous la vérification, puis rendu si rien n'est
+parti : une erreur de saisie ou une panne SMTP ne consomme pas le quota du
+visiteur.
 
 L'IP est lue depuis `CF-Connecting-IP`. C'est fiable ici parce qu'ufw n'accepte
 80/443 que depuis les plages Cloudflare : rien n'atteint nginx sans passer par
@@ -132,17 +143,23 @@ l'endpoint fonctionne normalement. Pour l'activer :
 2. Coller la *secret key* dans `TURNSTILE_SECRET`, puis `pm2 restart portfolio-contact`
 3. Côté front, charger le script du widget et envoyer son jeton dans le champ
    `turnstileToken` du corps JSON
-4. Ajouter à la CSP (dans `index.html` **et** `vercel.json`) :
-   `script-src` et `frame-src` → `https://challenges.cloudflare.com`
+4. Ajouter à la CSP, aux **trois** endroits où elle est déclarée (`index.html`,
+   `vercel.json` et `deploy/security-headers.conf`) :
+   `script-src` et `frame-src` → `https://challenges.cloudflare.com`.
+   Le navigateur applique toutes les CSP reçues à la fois : en oublier une
+   suffit à bloquer le widget, sur le VPS seulement si c'est celle de nginx.
 
 L'étape 3 n'est pas encore faite dans `src/pages/Contact.jsx` : le serveur sait
 vérifier un jeton, le front n'en produit pas encore.
 
 ## Pendant une bascule vers Vercel
 
-Le Worker Cloudflare bascule sur Vercel quand le VPS ne répond plus. Vercel n'a
-pas cet endpoint et renvoie 404 ; le formulaire affiche alors l'adresse en clair
-plutôt qu'une erreur sans issue. C'est la contrepartie assumée du relais SMTP :
+Le Worker Cloudflare bascule sur Vercel quand le VPS ne répond plus, mais
+seulement pour les GET : le POST du formulaire part toujours vers le VPS, parce
+qu'un corps de requête ne se lit qu'une fois et que Vercel n'a de toute façon
+pas cet endpoint. VPS tombé, service Node arrêté ou SMTP en panne, le
+formulaire reçoit une erreur 5xx (ou une page HTML) et affiche alors l'adresse
+en clair plutôt qu'une erreur sans issue. C'est la contrepartie assumée du relais SMTP :
 un Worker ne peut pas ouvrir de socket TCP, donc l'endpoint doit vivre sur le
 VPS. Y échapper supposerait de passer par l'API HTTP d'un service tiers, ce
 qu'on cherchait précisément à éviter en quittant EmailJS.

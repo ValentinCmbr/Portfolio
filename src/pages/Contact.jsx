@@ -9,8 +9,8 @@ const Contact = () => {
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState(null);
-    // Pendant une bascule vers Vercel, l'endpoint n'existe pas : on bascule sur
-    // l'adresse en clair plutôt que d'afficher une erreur sans issue.
+    // Quand l'endpoint ne peut pas envoyer (VPS ou service tombé, bascule vers
+    // Vercel), on affiche l'adresse en clair plutôt qu'une erreur sans issue.
     const [unavailable, setUnavailable] = useState(false);
     const [ref, inView] = useInViewOnce();
 
@@ -28,20 +28,25 @@ const Contact = () => {
                 body: JSON.stringify(data),
             });
 
-            if (res.status === 404) {
-                setUnavailable(true);
-                return;
-            }
+            // null quand la réponse n'est pas du JSON : page d'erreur de nginx
+            // ou de Cloudflare, ou index.html servi par Vercel.
+            const payload = await res.json().catch(() => null);
 
-            const payload = await res.json().catch(() => ({}));
-
-            if (res.ok) {
+            if (res.ok && payload?.ok) {
                 setSent(true);
+            } else if (res.status === 429) {
+                // nginx répond aussi en 429, avec une page HTML sans message.
+                setError(payload?.error || 'Trop de messages envoyés, merci de patienter quelques minutes.');
+            } else if (res.status < 500 && payload?.error) {
+                setError(payload.error);
             } else {
-                setError(payload.error || 'Une erreur est survenue, veuillez réessayer plus tard.');
+                // Tout le reste veut dire que l'endpoint ne peut pas envoyer :
+                // origine tombée (52x), service Node arrêté (502), SMTP en panne,
+                // ou bascule vers Vercel (404).
+                setUnavailable(true);
             }
         } catch {
-            // Échec réseau : l'origine est injoignable, même issue qu'un 404.
+            // Échec réseau : l'origine est injoignable.
             setUnavailable(true);
         } finally {
             setSending(false);

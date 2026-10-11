@@ -14,10 +14,6 @@
 
 # misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 npm-debug.log*
 yarn-debug.log*
@@ -26,11 +22,19 @@ yarn-error.log*
 .idea/
 .claude/
 .vercel
+
+# Secrets : tous les .env, sauf les modèles qui documentent les variables.
 .env*
+!.env.example
 
 # SSH deploy key material — never belongs in the repo, even generated locally.
 deploy_key
 deploy_key.pub
+
+# Certificat d'origine Cloudflare et sauvegardes de config faites sur le VPS.
+*.pem
+*.key
+*.bak
 
 # Dependances du service de contact (deploye separement sur le VPS)
 server/**/node_modules

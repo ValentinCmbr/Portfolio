@@ -99,7 +99,10 @@ const Contact = () => {
                         </button>
                         <p className="text-muted mt-2 mb-0" style={{ fontSize: '0.8rem' }}>
                             Vos nom et email servent uniquement à vous répondre.{' '}
-                            <a href="#confidentialite">En savoir plus</a>
+                            {/* Tous les navigateurs n'ouvrent pas un <details> ciblé par une ancre. */}
+                            <a href="#confidentialite" onClick={() => { document.getElementById('confidentialite').open = true; }}>
+                                En savoir plus
+                            </a>
                         </p>
                     </form>
                 )}

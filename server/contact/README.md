@@ -11,8 +11,8 @@ VPS échouerait la vérification et finirait en indésirables.
 
 ## Prérequis
 
-- Node ≥ 20.12 (`process.loadEnvFile` charge le `.env`, `fetch` natif pour
-  Turnstile) — vérifier avec `node --version` sur le VPS
+- Node ≥ 20.12 (`process.loadEnvFile` charge le `.env`) — vérifier avec
+  `node --version` sur le VPS
 - PM2, déjà présent sur le VPS (`pm2-botmsd.service`)
 - **Un compte SMTP avec un mot de passe** — voir ci-dessous
 
@@ -115,7 +115,6 @@ curl -s 127.0.0.1:8081/health
 | Taille du corps (16 ko) | nginx + Node | non |
 | Longueur des champs | serveur | non |
 | Refus des CR/LF dans nom et email | serveur | non |
-| Turnstile | serveur, optionnel | non |
 
 Le refus des retours chariot n'est pas cosmétique : le nom et l'email sont
 réinjectés dans les en-têtes `Reply-To` et `Subject`, et un CR permettrait d'en
@@ -132,25 +131,17 @@ visiteur.
 
 L'IP est lue depuis `CF-Connecting-IP`. C'est fiable ici parce qu'ufw n'accepte
 80/443 que depuis les plages Cloudflare : rien n'atteint nginx sans passer par
-Cloudflare, qui réécrit cet en-tête.
+Cloudflare, qui réécrit cet en-tête. Repli quand il manque et regroupement des
+IPv6 par /64 : voir `clientIp` et `rateLimitKey` dans `lib.js`.
 
-## Activer Turnstile (optionnel)
+## Tests
 
-Tant que `TURNSTILE_SECRET` est vide, la vérification est désactivée et
-l'endpoint fonctionne normalement. Pour l'activer :
+```bash
+npm test
+```
 
-1. Cloudflare → Turnstile → créer un widget pour le domaine
-2. Coller la *secret key* dans `TURNSTILE_SECRET`, puis `pm2 restart portfolio-contact`
-3. Côté front, charger le script du widget et envoyer son jeton dans le champ
-   `turnstileToken` du corps JSON
-4. Ajouter à la CSP, aux **trois** endroits où elle est déclarée (`index.html`,
-   `vercel.json` et `deploy/security-headers.conf`) :
-   `script-src` et `frame-src` → `https://challenges.cloudflare.com`.
-   Le navigateur applique toutes les CSP reçues à la fois : en oublier une
-   suffit à bloquer le widget, sur le VPS seulement si c'est celle de nginx.
-
-L'étape 3 n'est pas encore faite dans `src/pages/Contact.jsx` : le serveur sait
-vérifier un jeton, le front n'en produit pas encore.
+La logique pure (validation, origine, clé de limitation) vit dans `lib.js` pour
+être testable sans charger le `.env` ni ouvrir le port.
 
 ## Pendant une bascule vers Vercel
 

@@ -11,6 +11,7 @@
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import nodemailer from 'nodemailer';
+import { clientIp, isSameOrigin, rateLimitKey, validate } from './lib.js';
 
 // Chargé ici plutôt que via `node --env-file` : PM2 ne lit pas les .env, et le
 // chemin est résolu depuis ce fichier, donc indépendant du dossier de lancement.
@@ -34,7 +35,6 @@ const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const CONTACT_TO = process.env.CONTACT_TO || SMTP_USER;
-const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET || '';
 
 for (const [name, value] of Object.entries({ SMTP_HOST, SMTP_USER, SMTP_PASS })) {
     if (!value) {
@@ -45,15 +45,16 @@ for (const [name, value] of Object.entries({ SMTP_HOST, SMTP_USER, SMTP_PASS }))
 
 const MAX_BODY_BYTES = 16 * 1024;
 const COOLDOWN_MS = 5 * 60 * 1000;
-const LIMITS = { name: 100, email: 150, message: 2000 };
 
 // Délais courts : avec ceux de nodemailer par défaut (2 min pour la connexion),
 // le visiteur aurait abandonné depuis longtemps quand le message finirait par
-// partir.
+// partir. Hors 465, STARTTLS est exigé : sinon nodemailer s'authentifierait en
+// clair si le serveur ne le proposait pas.
 const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: SMTP_PORT === 465,
+    requireTLS: SMTP_PORT !== 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
     connectionTimeout: 10_000,
     greetingTimeout: 10_000,
@@ -70,77 +71,11 @@ const lastSeen = new Map();
 
 const pruneLastSeen = () => {
     const cutoff = Date.now() - COOLDOWN_MS;
-    for (const [ip, at] of lastSeen) {
-        if (at < cutoff) lastSeen.delete(ip);
+    for (const [key, at] of lastSeen) {
+        if (at < cutoff) lastSeen.delete(key);
     }
 };
 setInterval(pruneLastSeen, COOLDOWN_MS).unref();
-
-// ufw n'accepte 80/443 que depuis les plages Cloudflare, donc CF-Connecting-IP
-// ne peut pas être falsifié par un client arbitraire : rien n'atteint nginx sans
-// passer par Cloudflare, qui réécrit cet en-tête.
-const clientIp = (req) =>
-    req.headers['cf-connecting-ip'] ||
-    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
-    req.socket.remoteAddress ||
-    'unknown';
-
-// ---------------------------------------------------------------------------
-// Validation
-// ---------------------------------------------------------------------------
-
-// Un CR ou LF dans un champ réinjecté en en-tête (Reply-To, Subject)
-// permettrait d'en ajouter d'autres. On les refuse plutôt que de les nettoyer.
-const hasControlChars = (value) => /[\r\n]/.test(value);
-
-const validate = (body) => {
-    if (typeof body !== 'object' || body === null) return 'Requête invalide.';
-
-    // Honeypot : invisible pour un visiteur, donc rempli seulement par un bot.
-    if (body.website) return 'Requête invalide.';
-
-    for (const field of ['name', 'email', 'message']) {
-        const value = body[field];
-        if (typeof value !== 'string' || !value.trim()) {
-            return 'Merci de remplir tous les champs.';
-        }
-        if (value.length > LIMITS[field]) {
-            return 'Un des champs dépasse la longueur autorisée.';
-        }
-    }
-
-    if (hasControlChars(body.name) || hasControlChars(body.email)) {
-        return 'Requête invalide.';
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
-        return 'Adresse email invalide.';
-    }
-
-    return null;
-};
-
-// ---------------------------------------------------------------------------
-// Turnstile (optionnel)
-// ---------------------------------------------------------------------------
-
-const verifyTurnstile = async (token, ip) => {
-    if (!TURNSTILE_SECRET) return true; // non configuré : on n'exige rien
-    if (!token) return false;
-
-    try {
-        const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: TURNSTILE_SECRET, response: token, remoteip: ip }),
-        });
-        const data = await res.json();
-        return data.success === true;
-    } catch (err) {
-        console.error('[contact] vérification Turnstile impossible:', err.message);
-        return false;
-    }
-};
 
 // ---------------------------------------------------------------------------
 // Serveur
@@ -174,22 +109,9 @@ const readBody = (req) =>
         req.on('error', reject);
     });
 
-// Un site tiers peut poster en `text/plain` sans preflight CORS, depuis le
-// navigateur de chacun de ses visiteurs — donc depuis autant d'IP, ce qui
-// contourne toute limitation par IP. Exiger du JSON impose un preflight auquel
-// on ne répond pas, et l'Origin, quand le navigateur l'envoie, doit être ce
-// domaine.
-const isSameOrigin = (req) => {
-    const type = (req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
-    if (type !== 'application/json') return false;
-
-    const origin = req.headers.origin;
-    return !origin || origin === `https://${req.headers.host}`;
-};
-
 // Renvoie true quand le créneau de l'IP doit être conservé : message envoyé,
 // ou bot piégé par le honeypot.
-const handleContact = async (req, res, ip) => {
+const handleContact = async (req, res) => {
     let body;
     try {
         body = JSON.parse(await readBody(req));
@@ -201,23 +123,18 @@ const handleContact = async (req, res, ip) => {
     // Un textarea soumis encode chaque retour à la ligne en CRLF alors que son
     // maxLength les compte pour un caractère : sans ça, un message à la limite
     // côté navigateur la dépasserait ici.
-    if (body && typeof body.message === 'string') {
+    if (typeof body?.message === 'string') {
         body.message = body.message.replace(/\r\n?/g, '\n');
     }
 
     const problem = validate(body);
     if (problem) {
         // Le honeypot renvoie un succès : inutile d'apprendre au bot qu'il est repéré.
-        if (body && body.website) {
+        if (body?.website) {
             send(res, 200, { ok: true });
             return true;
         }
         send(res, 400, { error: problem });
-        return false;
-    }
-
-    if (!(await verifyTurnstile(body.turnstileToken, ip))) {
-        send(res, 400, { error: 'Vérification anti-robot échouée, merci de réessayer.' });
         return false;
     }
 
@@ -255,11 +172,13 @@ const server = http.createServer(async (req, res) => {
         return send(res, 415, { error: 'Requête invalide.' });
     }
 
-    const ip = clientIp(req);
+    // Raccourci : une IP partagée (NAT d'entreprise, CGNAT) bloque ses autres
+    // visiteurs 5 min après un envoi ; acceptable vu le trafic d'un portfolio.
+    const key = rateLimitKey(clientIp(req));
 
-    const previous = lastSeen.get(ip);
-    if (previous && Date.now() - previous < COOLDOWN_MS) {
-        const minutes = Math.ceil((COOLDOWN_MS - (Date.now() - previous)) / 60000);
+    const remaining = COOLDOWN_MS - (Date.now() - (lastSeen.get(key) ?? 0));
+    if (remaining > 0) {
+        const minutes = Math.ceil(remaining / 60000);
         return send(res, 429, {
             error: `Merci de patienter encore ${minutes} minute(s) avant de renvoyer un message.`,
         });
@@ -269,16 +188,15 @@ const server = http.createServer(async (req, res) => {
     // de la même IP passeraient toutes la vérification ci-dessus pendant que le
     // premier envoi est en cours. Il est rendu si rien n'est parti, pour qu'une
     // erreur de saisie ou une panne SMTP ne coûte pas 5 minutes au visiteur.
-    lastSeen.set(ip, Date.now());
+    lastSeen.set(key, Date.now());
     let keep = false;
     try {
-        keep = await handleContact(req, res, ip);
+        keep = await handleContact(req, res);
     } finally {
-        if (!keep) lastSeen.delete(ip);
+        if (!keep) lastSeen.delete(key);
     }
 });
 
 server.listen(PORT, '127.0.0.1', () => {
     console.log(`[contact] à l'écoute sur 127.0.0.1:${PORT}`);
-    console.log(`[contact] Turnstile ${TURNSTILE_SECRET ? 'activé' : 'désactivé (secret absent)'}`);
 });

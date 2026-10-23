@@ -1,7 +1,10 @@
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaDiscord, FaTicketAlt, FaRobot } from 'react-icons/fa';
 import ZenaviaLogo from "../components/ZenaviaLogo";
 import useInViewOnce from '../hooks/useInViewOnce';
 
+const ICON_STYLE = { color: 'var(--text)' };
+
+// link: null pour un dépôt privé — la carte l'indique au lieu d'un bouton.
 const projects = [
     {
         logo: <ZenaviaLogo width={48} height={48} />,
@@ -9,6 +12,27 @@ const projects = [
         description: "Site web pour le serveur Minecraft Zenavia — gestion de la boutique, classements et actualités.",
         techs: ["PHP", "Symfony", "Bootstrap"],
         link: { href: "https://zenavia.net/", label: "Voir le site", icon: <FaExternalLinkAlt size={12} /> },
+    },
+    {
+        logo: <FaDiscord size={42} style={ICON_STYLE} />,
+        title: "Bot Discord & site communautaire",
+        description: "Bot et site web compagnon pour une communauté privée — mini-jeux, classements, tierlists, cartes à collectionner et rangs League of Legends via l'API Riot. Testé en CI et en production sur mon VPS.",
+        techs: ["Node.js", "discord.js", "Express", "nginx"],
+        link: null,
+    },
+    {
+        logo: <FaTicketAlt size={40} style={ICON_STYLE} />,
+        title: "Ticketing",
+        description: "Application de gestion de tickets — API REST Symfony et Doctrine, interface React.",
+        techs: ["React", "Symfony", "Doctrine", "Docker"],
+        link: null,
+    },
+    {
+        logo: <FaRobot size={42} style={ICON_STYLE} />,
+        title: "Skills Claude Code",
+        description: "Marketplace de skills et plugins Claude Code que j'utilise au quotidien, relus un à un avant d'être ajoutés.",
+        techs: ["Claude Code", "IA"],
+        link: { href: "https://github.com/ValentinCmbr/claude-skills", label: "Voir le code", icon: <FaGithub size={14} /> },
     },
     {
         logo: null,
@@ -63,15 +87,21 @@ const Projects = () => {
                                             </span>
                                         ))}
                                     </div>
-                                    <a
-                                        href={project.link.href}
-                                        className="mt-auto btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {project.link.icon}
-                                        {project.link.label}
-                                    </a>
+                                    {project.link ? (
+                                        <a
+                                            href={project.link.href}
+                                            className="mt-auto btn btn-outline-dark d-flex align-items-center justify-content-center gap-2"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {project.link.icon}
+                                            {project.link.label}
+                                        </a>
+                                    ) : (
+                                        <span className="mt-auto text-muted" style={{ fontSize: '0.85rem' }}>
+                                            Code privé
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>

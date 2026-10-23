@@ -6,7 +6,7 @@ import RotatingWord from '../components/RotatingWord';
 const WORDS = ["Front-end", "Full-stack", "React", "Web"];
 const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo", "Salesforce"];
 const PARTICLE_COUNT = 40;
-// Pas de CV à jour pour l'instant — repasser à true dès qu'un CV est prêt à publier.
+// Pas de CV à jour pour l'instant — déposer public/CV_Dev.pdf puis repasser à true.
 const SHOW_CV_BUTTON = false;
 
 const Home = () => {

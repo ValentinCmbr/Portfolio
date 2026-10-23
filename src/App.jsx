@@ -8,6 +8,7 @@ import Projects from "./pages/Projects";
 import Navbar from "./components/Navbar";
 import ScrollToTopButton from "./components/ScrollTopButton";
 import Loader from "./components/Loader";
+import Footer from "./components/Footer";
 import { ThemeProvider } from "./context/ThemeContext";
 
 const Experiences = lazy(() => import("./pages/Experiences"));
@@ -50,6 +51,7 @@ function App() {
                         <Experiences />
                         <Formations />
                         <Contact />
+                        <Footer />
                     </Suspense>
                     <ScrollToTopButton />
                     <Analytics />

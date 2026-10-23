@@ -10,13 +10,15 @@ const Contact = () => {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState(null);
     // Quand l'endpoint ne peut pas envoyer (VPS ou service tombé, bascule vers
-    // Vercel), on affiche l'adresse en clair plutôt qu'une erreur sans issue.
+    // Vercel), on affiche l'adresse en clair plutôt qu'une erreur sans issue. Le
+    // formulaire reste affiché pour ne pas perdre le message et pouvoir réessayer.
     const [unavailable, setUnavailable] = useState(false);
     const [ref, inView] = useInViewOnce();
 
     const sendMessage = async (e) => {
         e.preventDefault();
         setError(null);
+        setUnavailable(false);
         setSending(true);
 
         const data = Object.fromEntries(new FormData(form.current));
@@ -58,12 +60,7 @@ const Contact = () => {
             <div ref={ref} className={`container reveal${inView ? ' is-visible' : ''}`}>
                 <h2 className="fw-bold mb-4">Me contacter</h2>
 
-                {unavailable ? (
-                    <div className="alert alert-warning mx-auto" style={{ maxWidth: '600px' }} role="alert">
-                        Le formulaire est momentanément indisponible. Écrivez-moi directement à{' '}
-                        <a href={`mailto:${FALLBACK_EMAIL}`}>{FALLBACK_EMAIL}</a>.
-                    </div>
-                ) : sent ? (
+                {sent ? (
                     <div className="alert alert-success" role="status">Message bien envoyé, merci ! ✅</div>
                 ) : (
                     <form ref={form} onSubmit={sendMessage} className="mx-auto" style={{ maxWidth: '600px' }}>
@@ -90,10 +87,20 @@ const Contact = () => {
                         </div>
 
                         {error && <div className="alert alert-warning py-2" role="alert">{error}</div>}
+                        {unavailable && (
+                            <div className="alert alert-warning py-2" role="alert">
+                                Le formulaire est momentanément indisponible. Réessayez plus tard ou écrivez-moi directement à{' '}
+                                <a href={`mailto:${FALLBACK_EMAIL}`}>{FALLBACK_EMAIL}</a>.
+                            </div>
+                        )}
 
                         <button type="submit" className="btn btn-primary w-100" disabled={sending}>
                             {sending ? 'Envoi en cours…' : 'Envoyer'}
                         </button>
+                        <p className="text-muted mt-2 mb-0" style={{ fontSize: '0.8rem' }}>
+                            Vos nom et email servent uniquement à vous répondre.{' '}
+                            <a href="#confidentialite">En savoir plus</a>
+                        </p>
                     </form>
                 )}
             </div>

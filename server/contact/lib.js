@@ -19,7 +19,10 @@ export const clientIp = (req) =>
 
 // Un FAI attribue au moins un /64 à chaque client IPv6 : limiter l'adresse
 // complète laisserait un attaquant en changer à chaque requête.
-export const rateLimitKey = (ip) => {
+// Une IPv4 vue par une socket IPv6 arrive préfixée de ::ffff: : sans le retirer,
+// toutes ces adresses tomberaient dans le même /64.
+export const rateLimitKey = (raw) => {
+    const ip = raw.replace(/^::ffff:(?=\d+\.)/i, '');
     if (!isIPv6(ip)) return ip;
 
     const [head, tail] = ip.split('::');
@@ -37,8 +40,9 @@ export const rateLimitKey = (ip) => {
 // ---------------------------------------------------------------------------
 
 // Un CR ou LF dans un champ réinjecté en en-tête (Reply-To, Subject)
-// permettrait d'en ajouter d'autres. On les refuse plutôt que de les nettoyer.
-const hasControlChars = (value) => /[\r\n]/.test(value);
+// permettrait d'en ajouter d'autres. On refuse tous les caractères de contrôle,
+// et les séparateurs de ligne Unicode, plutôt que de les nettoyer.
+const hasControlChars = (value) => /[\u0000-\u001f\u007f\u2028\u2029]/.test(value);
 
 export const validate = (body) => {
     if (typeof body !== 'object' || body === null) return 'Requête invalide.';
@@ -60,7 +64,8 @@ export const validate = (body) => {
         return 'Requête invalide.';
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+    // Les caractères qui structurent une liste d'adresses sont exclus.
+    if (!/^[^\s@<>",;]+@[^\s@<>",;]+\.[^\s@<>",;]+$/.test(body.email)) {
         return 'Adresse email invalide.';
     }
 
@@ -70,12 +75,19 @@ export const validate = (body) => {
 // Un site tiers peut poster en `text/plain` sans preflight CORS, depuis le
 // navigateur de chacun de ses visiteurs — donc depuis autant d'IP, ce qui
 // contourne toute limitation par IP. Exiger du JSON impose un preflight auquel
-// on ne répond pas, et l'Origin, quand le navigateur l'envoie, doit être ce
-// domaine.
-export const isSameOrigin = (req) => {
+// on ne répond pas, et l'Origin, quand le navigateur l'envoie, doit être une
+// origine autorisée. Liste en dur plutôt que déduite de l'en-tête Host :
+// derrière nginx, Host dépend de la config du proxy et peut valoir 127.0.0.1.
+export const isSameOrigin = (req, allowedOrigins) => {
     const type = (req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
     if (type !== 'application/json') return false;
 
     const origin = req.headers.origin;
-    return !origin || origin === `https://${req.headers.host}`;
+    return !origin || allowedOrigins.has(origin);
+};
+
+// null quand la valeur n'est pas un port valide, pour refuser de démarrer.
+export const parsePort = (value, fallback) => {
+    const port = Number(value || fallback);
+    return Number.isInteger(port) && port >= 1 && port <= 65535 ? port : null;
 };

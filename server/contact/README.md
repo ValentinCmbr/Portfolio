@@ -109,7 +109,8 @@ curl -s 127.0.0.1:8081/health
 | Contrôle | Où | Contournable ? |
 | --- | --- | --- |
 | Honeypot `website` | serveur | non |
-| `Content-Type: application/json` exigé, `Origin` vérifiée | serveur | non |
+| `Content-Type: application/json` exigé | serveur | non |
+| `Origin` vérifiée contre `ALLOWED_ORIGIN` quand le navigateur l'envoie | serveur | oui, hors navigateur (l'en-tête peut être omis) |
 | Délai de 5 min par IP | serveur, en mémoire | non |
 | Limitation nginx `10r/m` (répond 429) | en amont de Node | non |
 | Taille du corps (16 ko) | nginx + Node | non |

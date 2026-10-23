@@ -11,7 +11,7 @@
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import nodemailer from 'nodemailer';
-import { clientIp, isSameOrigin, rateLimitKey, validate } from './lib.js';
+import { clientIp, isSameOrigin, parsePort, rateLimitKey, validate } from './lib.js';
 
 // Chargé ici plutôt que via `node --env-file` : PM2 ne lit pas les .env, et le
 // chemin est résolu depuis ce fichier, donc indépendant du dossier de lancement.
@@ -26,15 +26,30 @@ try {
     if (err.code !== 'ENOENT') throw err;
 }
 
-const PORT = Number(process.env.PORT || 8081);
+const port = (name, fallback) => {
+    const value = parsePort(process.env[name], fallback);
+    if (value === null) {
+        console.error(`[contact] ${name} invalide : « ${process.env[name]} »`);
+        process.exit(1);
+    }
+    return value;
+};
+
+const PORT = port('PORT', 8081);
 // Pas de valeur par défaut pour l'hôte : le fournisseur dépend du compte
 // d'envoi retenu (voir README). Mieux vaut refuser de démarrer que pointer
 // silencieusement vers un serveur sur lequel on ne peut pas s'authentifier.
 const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
+const SMTP_PORT = port('SMTP_PORT', 465);
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const CONTACT_TO = process.env.CONTACT_TO || SMTP_USER;
+const ALLOWED_ORIGINS = new Set(
+    (process.env.ALLOWED_ORIGIN || 'https://valentincombier.com,https://www.valentincombier.com')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean),
+);
 
 for (const [name, value] of Object.entries({ SMTP_HOST, SMTP_USER, SMTP_PASS })) {
     if (!value) {
@@ -45,6 +60,9 @@ for (const [name, value] of Object.entries({ SMTP_HOST, SMTP_USER, SMTP_PASS }))
 
 const MAX_BODY_BYTES = 16 * 1024;
 const COOLDOWN_MS = 5 * 60 * 1000;
+// Après un échec, délai court : le visiteur peut corriger sa saisie, mais pas
+// enchaîner les connexions SMTP.
+const FAILURE_COOLDOWN_MS = 10 * 1000;
 
 // Délais courts : avec ceux de nodemailer par défaut (2 min pour la connexion),
 // le visiteur aurait abandonné depuis longtemps quand le message finirait par
@@ -81,12 +99,14 @@ setInterval(pruneLastSeen, COOLDOWN_MS).unref();
 // Serveur
 // ---------------------------------------------------------------------------
 
-const send = (res, status, payload) => {
+// `close` : le corps de la requête n'a pas été lu, on ne réutilise pas la connexion.
+const send = (res, status, payload, close = false) => {
     const body = JSON.stringify(payload);
     res.writeHead(status, {
         'Content-Type': 'application/json; charset=utf-8',
         'Content-Length': Buffer.byteLength(body),
         'Cache-Control': 'no-store',
+        ...(close && { Connection: 'close' }),
     });
     res.end(body);
 };
@@ -94,13 +114,18 @@ const send = (res, status, payload) => {
 const readBody = (req) =>
     new Promise((resolve, reject) => {
         let size = 0;
+        let tooLarge = false;
         const chunks = [];
 
+        // Pas de destroy ici : la réponse 413 doit pouvoir partir. Le reste du
+        // corps est ignoré, et Connection: close ferme la socket ensuite.
         req.on('data', (chunk) => {
+            if (tooLarge) return;
             size += chunk.length;
             if (size > MAX_BODY_BYTES) {
-                reject(new Error('body too large'));
-                req.destroy();
+                tooLarge = true;
+                chunks.length = 0;
+                reject(Object.assign(new Error('body too large'), { tooLarge: true }));
                 return;
             }
             chunks.push(chunk);
@@ -109,14 +134,16 @@ const readBody = (req) =>
         req.on('error', reject);
     });
 
-// Renvoie true quand le créneau de l'IP doit être conservé : message envoyé,
-// ou bot piégé par le honeypot.
+// Renvoie true quand le créneau de l'IP doit être conservé en entier : message
+// envoyé, ou bot piégé par le honeypot. Sinon le créneau est raccourci à
+// FAILURE_COOLDOWN_MS.
 const handleContact = async (req, res) => {
     let body;
     try {
         body = JSON.parse(await readBody(req));
-    } catch {
-        send(res, 400, { error: 'Requête invalide.' });
+    } catch (err) {
+        if (err.tooLarge) send(res, 413, { error: 'Message trop volumineux.' }, true);
+        else send(res, 400, { error: 'Requête invalide.' });
         return false;
     }
 
@@ -168,8 +195,8 @@ const server = http.createServer(async (req, res) => {
         return res.end();
     }
 
-    if (!isSameOrigin(req)) {
-        return send(res, 415, { error: 'Requête invalide.' });
+    if (!isSameOrigin(req, ALLOWED_ORIGINS)) {
+        return send(res, 415, { error: 'Requête invalide.' }, true);
     }
 
     // Raccourci : une IP partagée (NAT d'entreprise, CGNAT) bloque ses autres
@@ -181,21 +208,43 @@ const server = http.createServer(async (req, res) => {
         const minutes = Math.ceil(remaining / 60000);
         return send(res, 429, {
             error: `Merci de patienter encore ${minutes} minute(s) avant de renvoyer un message.`,
-        });
+        }, true);
     }
 
     // Créneau réservé avant le premier `await` : sinon des requêtes simultanées
     // de la même IP passeraient toutes la vérification ci-dessus pendant que le
-    // premier envoi est en cours. Il est rendu si rien n'est parti, pour qu'une
-    // erreur de saisie ou une panne SMTP ne coûte pas 5 minutes au visiteur.
+    // premier envoi est en cours. Si rien n'est parti, il est raccourci à
+    // quelques secondes : une erreur de saisie ou une panne SMTP ne coûte pas
+    // 5 minutes au visiteur, sans permettre d'enchaîner les envois.
     lastSeen.set(key, Date.now());
     let keep = false;
     try {
         keep = await handleContact(req, res);
+    } catch (err) {
+        console.error('[contact] erreur inattendue:', err);
+        if (!res.headersSent) send(res, 500, { error: 'Une erreur est survenue.' }, true);
     } finally {
-        if (!keep) lastSeen.delete(key);
+        if (!keep) lastSeen.set(key, Date.now() - COOLDOWN_MS + FAILURE_COOLDOWN_MS);
     }
 });
+
+server.on('error', (err) => {
+    console.error('[contact] erreur du serveur:', err.message);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('[contact] promesse rejetée non gérée:', err);
+});
+
+// Laisse les envois en cours se terminer avant de quitter (pm2 restart/stop).
+const shutdown = (signal) => {
+    console.log(`[contact] ${signal} reçu, arrêt`);
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 20_000).unref();
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 server.listen(PORT, '127.0.0.1', () => {
     console.log(`[contact] à l'écoute sur 127.0.0.1:${PORT}`);

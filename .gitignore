@@ -38,4 +38,3 @@ deploy_key.pub
 
 # Dependances du service de contact (deploye separement sur le VPS)
 server/**/node_modules
-server/**/.env

@@ -3,7 +3,10 @@ import {
     FaReact, FaHtml5, FaCss3Alt, FaJsSquare,
     FaPhp, FaSymfony, FaGitAlt, FaDatabase
 } from 'react-icons/fa';
-import { SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains, SiOdoo, SiSalesforce } from 'react-icons/si';
+import {
+    SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains, SiOdoo, SiSalesforce,
+    SiExpress, SiLinux, SiNginx, SiGithubactions, SiCloudflare
+} from 'react-icons/si';
 import {
     BiLogoBootstrap, BiLogoJava, BiLogoNodejs,
     BiLogoPython, BiLogoSpringBoot, BiLogoVuejs
@@ -38,6 +41,7 @@ const categories = [
             { icon: BiLogoSpringBoot,  label: "Spring Boot" },
             { icon: BiLogoPython,      label: "Python" },
             { icon: BiLogoNodejs,      label: "Node.js" },
+            { icon: SiExpress,         label: "Express" },
             { icon: FaDatabase,        label: "SQL" },
             { icon: SiMysql,           label: "MySQL" },
             { icon: SiPostgresql,      label: "PostgreSQL" },
@@ -48,6 +52,10 @@ const categories = [
         skills: [
             { icon: FaGitAlt,    label: "Git" },
             { icon: SiDocker,    label: "Docker" },
+            { icon: SiGithubactions, label: "GitHub Actions" },
+            { icon: SiLinux,     label: "Linux" },
+            { icon: SiNginx,     label: "nginx" },
+            { icon: SiCloudflare, label: "Cloudflare" },
             { icon: SiVercel,    label: "Vercel" },
             { icon: SiJetbrains, label: "JetBrains" },
             { icon: SiOdoo,      label: "Odoo" },

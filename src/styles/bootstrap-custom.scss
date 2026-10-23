@@ -41,6 +41,7 @@ $theme-colors: (
 @import "bootstrap/scss/badge";
 @import "bootstrap/scss/alert";
 @import "bootstrap/scss/helpers/position"; // .fixed-top (Navbar)
+@import "bootstrap/scss/helpers/visually-hidden"; // lien d'évitement (App)
 
 // Trim the utilities map down to what this site actually uses (verified
 // against every className in src/**/*.jsx). Two levers, both safe because

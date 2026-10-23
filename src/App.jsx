@@ -1,58 +1,49 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Skills from "./pages/Skills";
 import Projects from "./pages/Projects";
+import Experiences from "./pages/Experiences";
+import Formations from "./pages/Formations";
+import Contact from "./pages/Contact";
 import Navbar from "./components/Navbar";
 import ScrollToTopButton from "./components/ScrollTopButton";
 import Loader from "./components/Loader";
 import Footer from "./components/Footer";
 import { ThemeProvider } from "./context/ThemeContext";
 
-const Experiences = lazy(() => import("./pages/Experiences"));
-const Formations = lazy(() => import("./pages/Formations"));
-const Contact = lazy(() => import("./pages/Contact"));
-
 function App() {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => document.readyState !== 'complete');
 
     useEffect(() => {
-        let timeout;
-        const handleReady = () => {
-            timeout = setTimeout(() => setLoading(false), 500);
-        };
+        if (!loading) return;
+        const done = () => setLoading(false);
+        window.addEventListener('load', done, { once: true });
+        return () => window.removeEventListener('load', done);
+    }, [loading]);
 
-        if (document.readyState === 'complete') {
-            handleReady();
-        } else {
-            window.addEventListener('load', handleReady, { once: true });
-        }
-
-        return () => {
-            clearTimeout(timeout);
-            window.removeEventListener('load', handleReady);
-        };
-    }, []);
-
+    // Sections chargées d'emblée : en lazy, elles ne pesaient que quelques ko et
+    // obligeaient à placer le footer dans le même Suspense, donc dans <main>.
     return (
         <ThemeProvider>
             {loading ? (
                 <Loader />
             ) : (
                 <div className="app-enter">
+                    <a href="#main" className="skip-link visually-hidden-focusable">Aller au contenu</a>
                     <Navbar />
-                    <Home />
-                    <About />
-                    <Skills />
-                    <Projects />
-                    <Suspense fallback={null}>
+                    <main id="main" tabIndex={-1}>
+                        <Home />
+                        <About />
+                        <Skills />
+                        <Projects />
                         <Experiences />
                         <Formations />
                         <Contact />
-                        <Footer />
-                    </Suspense>
+                    </main>
+                    <Footer />
                     <ScrollToTopButton />
                     <Analytics />
                     <SpeedInsights />

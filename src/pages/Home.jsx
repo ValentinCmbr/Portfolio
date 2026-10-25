@@ -3,8 +3,8 @@ import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { useTheme } from '../context/ThemeContext';
 import RotatingWord from '../components/RotatingWord';
 
-const WORDS = ["Front-end", "Full-stack", "React", "Web"];
-const TECHS = ["React", "JavaScript", "PHP", "Symfony", "Odoo", "Salesforce"];
+const WORDS = ["Administration Salesforce", "Gestion de projet ERP", "Support applicatif", "Développement web"];
+const TECHS = ["Salesforce", "Zendesk", "n8n", "Odoo", "React", "PHP", "Symfony"];
 const PARTICLE_COUNT = 40;
 // Pas de CV à jour pour l'instant — déposer public/CV_Dev.pdf puis repasser à true.
 const SHOW_CV_BUTTON = false;
@@ -120,13 +120,12 @@ const Home = () => {
                     display: 'block',
                     marginBottom: '1rem'
                 }}>
-                    Technicien support applicatif & Administrateur Salesforce
+                    Chargé d'applications métier — Salesforce & ERP
                 </span>
 
                 <h1 className="fw-bold">Salut, moi c'est Valentin 👋</h1>
 
                 <div className="d-flex justify-content-center align-items-center gap-2 mt-3" style={{ minHeight: '36px' }}>
-                    <p className="lead text-muted mb-0">Développeur</p>
                     <RotatingWord words={WORDS} />
                 </div>
 

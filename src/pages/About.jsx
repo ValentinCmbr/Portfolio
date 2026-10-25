@@ -14,7 +14,7 @@ const About = () => {
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <p className="lead">
-                            Je m'appelle Valentin, développeur web basé à Lyon. J'ai construit mon expérience
+                            Je m'appelle Valentin, chargé d'applications métier basé à Lyon. J'ai construit mon expérience
                             en alternance sur des projets concrets — intégration d'ERP, développement d'outils
                             internes, et interfaces web du front au back.
                         </p>

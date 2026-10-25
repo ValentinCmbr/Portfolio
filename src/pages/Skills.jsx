@@ -4,12 +4,13 @@ import {
     FaPhp, FaSymfony, FaGitAlt, FaDatabase
 } from 'react-icons/fa';
 import {
-    SiMysql, SiPostgresql, SiDocker, SiVercel, SiJetbrains, SiOdoo, SiSalesforce,
-    SiExpress, SiLinux, SiNginx, SiGithubactions, SiCloudflare
+    SiMysql, SiPostgresql, SiDocker, SiVercel, SiOdoo, SiSalesforce,
+    SiExpress, SiLinux, SiNginx, SiGithubactions, SiCloudflare, SiZendesk, SiN8N,
+    SiTypescript, SiNextdotjs, SiTailwindcss, SiPrisma, SiSqlite
 } from 'react-icons/si';
 import {
     BiLogoBootstrap, BiLogoJava, BiLogoNodejs,
-    BiLogoPython, BiLogoSpringBoot, BiLogoVuejs
+    BiLogoPython, BiLogoSpringBoot
 } from 'react-icons/bi';
 import useInViewOnce from '../hooks/useInViewOnce';
 
@@ -27,9 +28,11 @@ const categories = [
             { icon: FaHtml5,         label: "HTML5" },
             { icon: FaCss3Alt,       label: "CSS3" },
             { icon: FaJsSquare,      label: "JavaScript" },
+            { icon: SiTypescript,    label: "TypeScript" },
             { icon: FaReact,         label: "React" },
-            { icon: BiLogoVuejs,     label: "Vue.js" },
+            { icon: SiNextdotjs,     label: "Next.js" },
             { icon: BiLogoBootstrap, label: "Bootstrap" },
+            { icon: SiTailwindcss,   label: "Tailwind CSS" },
         ]
     },
     {
@@ -45,6 +48,8 @@ const categories = [
             { icon: FaDatabase,        label: "SQL" },
             { icon: SiMysql,           label: "MySQL" },
             { icon: SiPostgresql,      label: "PostgreSQL" },
+            { icon: SiSqlite,          label: "SQLite" },
+            { icon: SiPrisma,          label: "Prisma" },
         ]
     },
     {
@@ -57,14 +62,15 @@ const categories = [
             { icon: SiNginx,     label: "nginx" },
             { icon: SiCloudflare, label: "Cloudflare" },
             { icon: SiVercel,    label: "Vercel" },
-            { icon: SiJetbrains, label: "JetBrains" },
             { icon: SiOdoo,      label: "Odoo" },
+            { icon: SiN8N,       label: "n8n" },
         ]
     },
     {
         title: "Support & CRM",
         skills: [
             { icon: SiSalesforce, label: "Salesforce" },
+            { icon: SiZendesk,    label: "Zendesk" },
         ]
     },
 ];

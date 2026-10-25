@@ -8,8 +8,9 @@ const Experiences = () => (
             badge="CDI"
             meta="septembre 2026 – présent"
             description={[
-                "Résolution de tickets collaborateurs",
+                "Résolution de tickets collaborateurs sur Zendesk",
                 "Amélioration continue sur Salesforce",
+                "Automatisation de processus avec n8n",
             ]}
         />
 

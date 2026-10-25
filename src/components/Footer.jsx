@@ -33,8 +33,7 @@ const Footer = () => (
                     d'autres fins.
                 </p>
                 <p className="mb-1">
-                    Le site ne dépose aucun cookie. La mesure d'audience (Vercel Analytics) et
-                    de performance (Vercel Speed Insights) est anonyme et sans cookie. Le trafic
+                    Le site ne dépose aucun cookie et ne mesure pas l'audience. Le trafic
                     transite par Cloudflare, qui protège le site.
                 </p>
                 <p className="mb-0">

@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Skills from "./pages/Skills";
@@ -45,8 +43,6 @@ function App() {
                     </main>
                     <Footer />
                     <ScrollToTopButton />
-                    <Analytics />
-                    <SpeedInsights />
                 </div>
             )}
         </ThemeProvider>

@@ -88,7 +88,8 @@ côté de lui, quel que soit le dossier depuis lequel le service est lancé.
 PM2 déjà installée pour ton bot. Sans lui, le service ne survit pas au
 redémarrage.
 
-Puis le proxy nginx, déjà présent dans `deploy/portfolio.nginx.conf` :
+Puis le proxy nginx, déjà présent dans la configuration nginx du site (dépôt
+d'infrastructure du VPS) :
 
 ```bash
 sudo nginx -t && sudo systemctl reload nginx

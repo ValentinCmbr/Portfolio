@@ -65,28 +65,27 @@ le VPS est injoignable, et elle doit recevoir pour de vrai.
 Le service vit **hors** de `/var/www/portfolio` : le workflow de déploiement
 fait un `rsync --delete` sur ce dossier et effacerait tout ce qui s'y trouve.
 
+Sur le VPS, le code n'est pas copié à la main : `sudo portfolio-deployer`
+(dépôt d'infrastructure du VPS) récupère `server/contact` de la branche
+`master`, lance les tests dans une copie à part, remplace le code de
+`/opt/portfolio-contact` en gardant son `.env`, relance le processus PM2
+`portfolio-contact` et vérifie `/health`. En cas d'échec, il remet la version
+précédente. À relancer après chaque modification de ce dossier.
+
+Première installation, une seule fois : poser le `.env` (le dossier est créé
+par le script de reconstruction du VPS), puis déployer.
+
 ```bash
-sudo mkdir -p /opt/portfolio-contact
-sudo chown $USER /opt/portfolio-contact
-# depuis ta machine :
-rsync -av server/contact/ <user>@<vps>:/opt/portfolio-contact/
-
-# sur le VPS :
-cd /opt/portfolio-contact
-npm install --omit=dev
-cp .env.example .env
-$EDITOR .env          # renseigner SMTP_USER, SMTP_PASS, CONTACT_TO
-
-pm2 start index.js --name portfolio-contact
-pm2 save
+sudo -u botmsd cp .env.example /opt/portfolio-contact/.env   # depuis un clone du dépôt
+sudo -u botmsd chmod 600 /opt/portfolio-contact/.env
+sudo -u botmsd $EDITOR /opt/portfolio-contact/.env           # SMTP_USER, SMTP_PASS, CONTACT_TO
+sudo portfolio-deployer
 ```
 
 PM2 ne lit pas les fichiers `.env` : c'est `index.js` qui charge celui posé à
-côté de lui, quel que soit le dossier depuis lequel le service est lancé.
-
-`pm2 save` est ce qui fait repartir le service au reboot, via l'unité systemd
-PM2 déjà installée pour ton bot. Sans lui, le service ne survit pas au
-redémarrage.
+côté de lui, quel que soit le dossier depuis lequel le service est lancé. Au
+premier déploiement, le script fait aussi `pm2 save`, qui fait repartir le
+service au redémarrage du VPS.
 
 Puis le proxy nginx, déjà présent dans la configuration nginx du site (dépôt
 d'infrastructure du VPS) :

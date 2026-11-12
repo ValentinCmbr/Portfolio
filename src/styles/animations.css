@@ -115,7 +115,9 @@
     border: none;
     border-radius: 50%;
     background-color: var(--badge-color);
-    color: #fff;
+    /* --bg plutôt que blanc : le blanc sur le bleu clair du thème sombre
+       était à 1.8:1. */
+    color: var(--bg);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     display: flex;
@@ -126,6 +128,13 @@
     transform: scale(0.5);
     pointer-events: none;
     transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* En Brutal sombre, --badge-color vaut la couleur du fond de page : le bouton
+   disparaissait. */
+[data-style="brutal"][data-theme="dark"] .scroll-top {
+    background-color: var(--badge-bg);
+    color: var(--badge-color);
 }
 
 .scroll-top.is-visible {

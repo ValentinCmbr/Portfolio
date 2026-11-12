@@ -65,6 +65,12 @@ code {
   --font-heading: var(--font-body);
   --accent: #0d6efd;
   --accent-2: #6ea8fe;
+  /* Fond plein en accent (bouton Envoyer, filtre actif) et texte posé dessus :
+     séparés de --accent parce que le blanc sur l'accent clair du thème sombre
+     ou d'Aurora tombe sous 4.5:1. */
+  --accent-fill: #0d6efd;
+  --on-accent: #ffffff;
+  --input-border: #6c757d;
   --radius-pill: 99px;
   --radius-card: 0.75rem;
   --radius-btn: 0.5rem;
@@ -92,6 +98,9 @@ code {
   --skills-label-color: #94a3b8;
   --accent: #6ea8fe;
   --accent-2: #93c5fd;
+  --accent-fill: #6ea8fe;
+  --on-accent: #0f172a;
+  --input-border: #64748b;
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
@@ -106,6 +115,8 @@ code {
   --border-width: 1px;
   --accent: #7c5cff;
   --accent-2: #e879c6;
+  --accent-fill: #6d4de0;
+  --on-accent: #ffffff;
 }
 
 [data-style="gradient"]:not([data-theme="dark"]) {
@@ -177,6 +188,8 @@ code {
   --border-width: 3px;
   --accent: #ff6b5b;
   --accent-2: #ffd23f;
+  --accent-fill: #ff6b5b;
+  --on-accent: #14120f;
 }
 
 [data-style="brutal"]:not([data-theme="dark"]) {
@@ -239,6 +252,19 @@ code {
   color: #94a3b8 !important;
 }
 
+/* Le gris de Bootstrap (#6c757d) tombe à 4.1-4.2:1 sur les fonds crème
+   d'Aurora et de Brutal. */
+[data-style="gradient"]:not([data-theme="dark"]) .text-muted,
+[data-style="brutal"]:not([data-theme="dark"]) .text-muted {
+  color: #5a5f69 !important;
+}
+
+/* La bordure par défaut (#dee2e6) est à 1.3:1 : le champ ne se distingue
+   pas du fond (WCAG 1.4.11). */
+.form-control {
+  border-color: var(--input-border);
+}
+
 [data-theme="dark"] .btn-outline-dark {
   border-color: rgba(241, 245, 249, 0.6);
   color: #f1f5f9;
@@ -269,8 +295,9 @@ code {
 }
 
 .btn-primary {
-  background-color: var(--accent) !important;
-  border-color: var(--accent) !important;
+  background-color: var(--accent-fill) !important;
+  border-color: var(--accent-fill) !important;
+  color: var(--on-accent) !important;
 }
 
 .theme-card,
@@ -293,8 +320,10 @@ code {
 
 /* ---------- Aurora: gradient fills, glass buttons ---------- */
 
+/* Teintes plus sombres que --accent/--accent-2 : le blanc sur #e879c6 était à
+   2.6:1. */
 html[data-style="gradient"] .btn-dark {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: linear-gradient(90deg, var(--accent-fill), #b83d94);
   border: none;
   color: #fff;
   box-shadow: 0 10px 30px rgba(124, 92, 255, 0.3);
@@ -336,7 +365,25 @@ html[data-style="brutal"] .btn-primary:hover,
 html[data-style="brutal"] .btn-outline-dark:hover {
   transform: translate(3px, 3px);
   box-shadow: 2px 2px 0 var(--accent);
-  color: inherit;
+}
+
+/* Couleurs explicites : `inherit` reprenait --text, la couleur du fond des
+   boutons pleins, et le libellé disparaissait au survol. */
+html[data-style="brutal"] .btn-dark:hover {
+  color: var(--bg);
+}
+
+html[data-style="brutal"] .btn-outline-dark:hover {
+  color: var(--text);
+}
+
+/* Ces styles remplacent le box-shadow qui sert d'anneau de focus à Bootstrap,
+   lequel a déjà mis outline: 0 : sans cette règle, le focus clavier est
+   invisible sur les boutons. */
+html[data-style="gradient"] .btn:focus-visible,
+html[data-style="brutal"] .btn:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
 }
 
 html[data-style="brutal"] .theme-card,

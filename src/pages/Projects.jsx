@@ -70,7 +70,7 @@ const Projects = () => {
                                     <div className="mb-3" style={{ height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                         {project.logo ?? <FaGithub size={42} style={{ color: 'var(--text)' }} />}
                                     </div>
-                                    <h5 className="fw-bold mb-2">{project.title}</h5>
+                                    <h3 className="h5 fw-bold mb-2">{project.title}</h3>
                                     <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
                                         {project.description}
                                     </p>

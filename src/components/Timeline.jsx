@@ -7,7 +7,7 @@ export const TimelineItem = ({ heading, subheading, badge, meta, description }) 
         <div className="timeline-content">
             <div className="d-flex justify-content-between align-items-start flex-wrap gap-1">
                 <div>
-                    <h5 className="fw-bold mb-0">{heading}</h5>
+                    <h3 className="h5 fw-bold mb-0">{heading}</h3>
                     <span className="text-muted" style={{ fontSize: '0.9rem' }}>{subheading}</span>
                 </div>
                 <span className="badge rounded-pill badge-pill-custom">

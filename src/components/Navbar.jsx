@@ -10,7 +10,9 @@ const Navbar = () => {
     return (
         <nav className="navbar navbar-expand-lg fixed-top shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border)' }}>
             <div className="container">
-                <a className="navbar-brand" href="#home" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700 }}>
+                {/* Le nom accessible ne doit pas suivre l'animation : sans aria-label,
+                    le lien n'a aucun nom puis s'épelle lettre par lettre. */}
+                <a className="navbar-brand" href="#home" aria-label="Valentin, retour à l'accueil" style={{ fontFamily: 'var(--font-heading)', fontWeight: 700 }}>
                     <TypewriterText text="Valentin" />
                 </a>
                 <div className="d-flex align-items-center gap-2 ms-auto">
@@ -65,7 +67,8 @@ const Navbar = () => {
                             color: 'var(--text)',
                             backgroundColor: 'var(--tag-bg)',
                         }}
-                        aria-label="Basculer le thème clair/sombre"
+                        aria-label="Thème sombre"
+                        aria-pressed={dark}
                     >
                         {dark ? <FaSun size={14} /> : <FaMoon size={14} />}
                     </button>

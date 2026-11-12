@@ -96,7 +96,9 @@ const Skills = () => {
                     {FILTERS.map(f => (
                         <button
                             key={f}
+                            type="button"
                             className="theme-pill"
+                            aria-pressed={active === f}
                             onClick={() => setActive(f)}
                             style={{
                                 fontSize: '13px',
@@ -104,9 +106,9 @@ const Skills = () => {
                                 border: '1px solid',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease',
-                                borderColor: active === f ? 'var(--accent)' : 'var(--border)',
-                                backgroundColor: active === f ? 'var(--accent)' : 'var(--tag-bg)',
-                                color: active === f ? '#fff' : 'var(--tag-color)',
+                                borderColor: active === f ? 'var(--accent-fill)' : 'var(--border)',
+                                backgroundColor: active === f ? 'var(--accent-fill)' : 'var(--tag-bg)',
+                                color: active === f ? 'var(--on-accent)' : 'var(--tag-color)',
                             }}
                         >
                             {f}
@@ -117,7 +119,7 @@ const Skills = () => {
                 <div key={active} className="row justify-content-center fade-swap">
                     {visible.map(cat => (
                         <div key={cat.title} className="col-md-4 mb-5">
-                            <h4 className="text-primary mb-4">{cat.title}</h4>
+                            <h3 className="h4 text-primary mb-4">{cat.title}</h3>
                             <div className="d-flex flex-wrap justify-content-center gap-3">
                                 {cat.skills.map(s => (
                                     <SkillIcon key={s.label} icon={s.icon} label={s.label} />

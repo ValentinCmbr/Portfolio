@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { clientIp, isSameOrigin, parsePort, rateLimitKey, validate } from './lib.js';
+import { clientIp, createSendBudget, isSameOrigin, parsePort, rateLimitKey, validate } from './lib.js';
 
 const valid = { name: 'Alice', email: 'alice@example.com', message: 'Bonjour' };
 
@@ -10,7 +10,9 @@ test('validate accepte un message correct', () => {
 });
 
 test('validate refuse le honeypot, les champs vides ou trop longs', () => {
-    assert.ok(validate({ ...valid, website: 'x' }));
+    assert.ok(validate({ ...valid, hp_ignore: 'x' }));
+    // Ancien nom du honeypot, rempli par l'autofill de vrais visiteurs.
+    assert.equal(validate({ ...valid, website: 'https://exemple.fr' }), null);
     assert.ok(validate({ ...valid, name: '  ' }));
     assert.ok(validate({ ...valid, message: 'a'.repeat(2001) }));
     assert.ok(validate(null));
@@ -22,6 +24,10 @@ test('validate refuse CR/LF dans les champs réinjectés en en-tête', () => {
     assert.ok(validate({ ...valid, email: 'a@b.c\nBcc: x@y.z' }));
     assert.ok(validate({ ...valid, name: 'a\u2028b' }));
     assert.ok(validate({ ...valid, name: 'a\u0000b' }));
+    assert.ok(validate({ ...valid, name: 'a\u202eb' }));
+    assert.ok(validate({ ...valid, name: 'a\u200bb' }));
+    assert.ok(validate({ ...valid, name: 'a\u2066b' }));
+    assert.equal(validate({ ...valid, name: 'Élodie Müller' }), null);
     assert.equal(validate({ ...valid, message: 'ligne 1\nligne 2' }), null);
 });
 
@@ -63,4 +69,17 @@ test('rateLimitKey regroupe les IPv6 par /64', () => {
     assert.equal(rateLimitKey('2001:db8::1'), '2001:db8:0:0::/64');
     assert.equal(rateLimitKey('::ffff:1.2.3.4'), '1.2.3.4');
     assert.equal(rateLimitKey('unknown'), 'unknown');
+});
+
+test('createSendBudget plafonne sur une fenêtre glissante et rend les places', () => {
+    const budget = createSendBudget(2, 1000);
+    const a = budget.take(0);
+    assert.notEqual(a, null);
+    assert.notEqual(budget.take(10), null);
+    assert.equal(budget.take(20), null);
+    budget.refund(a);
+    assert.notEqual(budget.take(30), null);
+    assert.equal(budget.take(40), null);
+    // Les places prises à 10 et 30 sortent de la fenêtre après 1 s.
+    assert.notEqual(budget.take(1031), null);
 });

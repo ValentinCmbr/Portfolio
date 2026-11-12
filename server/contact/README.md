@@ -98,7 +98,9 @@ curl -s https://valentincombier.com/api/contact -X POST \
 ```
 
 Le service expose aussi `GET /health` en local, pratique pour vérifier qu'il
-tourne sans envoyer de mail :
+tourne sans envoyer de mail. Il répond 503 si la connexion SMTP vérifiée au
+démarrage a échoué (mot de passe faux, serveur injoignable), ce qui fait échouer
+`portfolio-deployer` au lieu de valider un service qui ne peut rien envoyer :
 
 ```bash
 curl -s 127.0.0.1:8081/health
@@ -108,10 +110,11 @@ curl -s 127.0.0.1:8081/health
 
 | Contrôle | Où | Contournable ? |
 | --- | --- | --- |
-| Honeypot `website` | serveur | non |
+| Honeypot `hp_ignore` | serveur | non |
 | `Content-Type: application/json` exigé | serveur | non |
 | `Origin` vérifiée contre `ALLOWED_ORIGIN` quand le navigateur l'envoie | serveur | oui, hors navigateur (l'en-tête peut être omis) |
 | Délai de 5 min par IP | serveur, en mémoire | non |
+| Plafond global de 20 envois/heure (répond 503) | serveur, en mémoire | non |
 | Limitation nginx `10r/m` (répond 429) | en amont de Node | non |
 | Taille du corps (16 ko) | nginx + Node | non |
 | Longueur des champs | serveur | non |

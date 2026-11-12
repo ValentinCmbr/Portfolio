@@ -42,13 +42,17 @@ export const rateLimitKey = (raw) => {
 // Un CR ou LF dans un champ réinjecté en en-tête (Reply-To, Subject)
 // permettrait d'en ajouter d'autres. On refuse tous les caractères de contrôle,
 // et les séparateurs de ligne Unicode, plutôt que de les nettoyer.
-const hasControlChars = (value) => /[\u0000-\u001f\u007f\u2028\u2029]/.test(value);
+// Les caractères invisibles et de contrôle bidi (U+200B-U+200F, U+202A-U+202E,
+// U+2066-U+2069) sont refusés aussi : ils retourneraient ou masqueraient
+// l'affichage de l'objet dans le client mail.
+const hasControlChars = (value) =>
+    /[\u0000-\u001f\u007f\u200b-\u200f\u2028-\u202e\u2066-\u2069]/.test(value);
 
 export const validate = (body) => {
     if (typeof body !== 'object' || body === null) return 'Requête invalide.';
 
     // Honeypot : invisible pour un visiteur, donc rempli seulement par un bot.
-    if (body.website) return 'Requête invalide.';
+    if (body.hp_ignore) return 'Requête invalide.';
 
     for (const field of ['name', 'email', 'message']) {
         const value = body[field];
@@ -84,6 +88,26 @@ export const isSameOrigin = (req, allowedOrigins) => {
 
     const origin = req.headers.origin;
     return !origin || allowedOrigins.has(origin);
+};
+
+// Plafond global d'envois sur une fenêtre glissante. La limite par IP ne suffit
+// pas : un bloc IPv6 /48 donne 65 536 clés /64, un botnet autant d'IPv4, et le
+// compte SMTP serait bloqué pour dépassement de quota. `take` réserve une place
+// (null si le plafond est atteint), `refund` la rend quand rien n'est parti.
+export const createSendBudget = (max, windowMs) => {
+    let times = [];
+    return {
+        take(now = Date.now()) {
+            times = times.filter((t) => t > now - windowMs);
+            if (times.length >= max) return null;
+            times.push(now);
+            return now;
+        },
+        refund(token) {
+            const i = times.indexOf(token);
+            if (i !== -1) times.splice(i, 1);
+        },
+    };
 };
 
 // null quand la valeur n'est pas un port valide, pour refuser de démarrer.

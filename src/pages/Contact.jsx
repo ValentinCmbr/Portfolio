@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useInViewOnce from '../hooks/useInViewOnce';
 
 const ENDPOINT = '/api/contact';
@@ -14,6 +14,13 @@ const Contact = () => {
     // formulaire reste affiché pour ne pas perdre le message et pouvoir réessayer.
     const [unavailable, setUnavailable] = useState(false);
     const [ref, inView] = useInViewOnce();
+    const successRef = useRef(null);
+
+    // Le bouton qui avait le focus disparaît avec le formulaire : sans ça, le
+    // focus retomberait en haut de la page.
+    useEffect(() => {
+        if (sent) successRef.current?.focus();
+    }, [sent]);
 
     const sendMessage = async (e) => {
         e.preventDefault();
@@ -28,6 +35,11 @@ const Contact = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
+                // Sans délai, un endpoint figé laisse « Envoi en cours… » jusqu'à
+                // l'abandon de nginx ou de Cloudflare (60 à 100 s). 30 s couvre un
+                // envoi SMTP lent. Le catch affiche alors l'adresse en clair.
+                // AbortSignal.timeout manque sur Safari < 16 : on envoie sans délai.
+                signal: AbortSignal.timeout?.(30_000),
             });
 
             // null quand la réponse n'est pas du JSON : page d'erreur de nginx
@@ -61,12 +73,17 @@ const Contact = () => {
                 <h2 className="fw-bold mb-4">Me contacter</h2>
 
                 {sent ? (
-                    <div className="alert alert-success" role="status">Message bien envoyé, merci ! ✅</div>
+                    <div className="alert alert-success" role="status" tabIndex={-1} ref={successRef}>
+                        Message bien envoyé, merci ! ✅
+                    </div>
                 ) : (
                     <form ref={form} onSubmit={sendMessage} className="mx-auto" style={{ maxWidth: '600px' }}>
                         <input
                             type="text"
-                            name="website"
+                            // Nom qu'aucun gestionnaire de mots de passe ni profil
+                            // d'autofill ne vise : « website » était rempli chez de
+                            // vrais visiteurs, dont le message était jeté.
+                            name="hp_ignore"
                             style={{ display: 'none' }}
                             tabIndex="-1"
                             autoComplete="off"

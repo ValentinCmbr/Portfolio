@@ -11,7 +11,7 @@
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import nodemailer from 'nodemailer';
-import { clientIp, isSameOrigin, parsePort, rateLimitKey, validate } from './lib.js';
+import { clientIp, createSendBudget, isSameOrigin, parsePort, rateLimitKey, validate } from './lib.js';
 
 // Chargé ici plutôt que via `node --env-file` : PM2 ne lit pas les .env, et le
 // chemin est résolu depuis ce fichier, donc indépendant du dossier de lancement.
@@ -63,6 +63,9 @@ const COOLDOWN_MS = 5 * 60 * 1000;
 // Après un échec, délai court : le visiteur peut corriger sa saisie, mais pas
 // enchaîner les connexions SMTP.
 const FAILURE_COOLDOWN_MS = 10 * 1000;
+// Largement au-dessus du trafic d'un portfolio, et sous les quotas d'envoi
+// d'OVH comme de Gmail.
+const sendBudget = createSendBudget(20, 60 * 60 * 1000);
 
 // Délais courts : avec ceux de nodemailer par défaut (2 min pour la connexion),
 // le visiteur aurait abandonné depuis longtemps quand le message finirait par
@@ -142,8 +145,14 @@ const handleContact = async (req, res) => {
     try {
         body = JSON.parse(await readBody(req));
     } catch (err) {
-        if (err.tooLarge) send(res, 413, { error: 'Message trop volumineux.' }, true);
-        else send(res, 400, { error: 'Requête invalide.' });
+        if (err.tooLarge) {
+            console.warn('[contact] rejet : corps trop volumineux');
+            send(res, 413, { error: 'Message trop volumineux.' }, true);
+        } else {
+            // err.code : ECONNRESET quand le client coupe en cours d'envoi.
+            console.warn('[contact] rejet : corps illisible', err.code ?? err.name);
+            send(res, 400, { error: 'Requête invalide.' });
+        }
         return false;
     }
 
@@ -157,11 +166,23 @@ const handleContact = async (req, res) => {
     const problem = validate(body);
     if (problem) {
         // Le honeypot renvoie un succès : inutile d'apprendre au bot qu'il est repéré.
-        if (body?.website) {
+        if (body?.hp_ignore) {
+            console.warn('[contact] rejet : honeypot');
             send(res, 200, { ok: true });
             return true;
         }
+        // Le message de validation ne contient aucune saisie du visiteur.
+        console.warn('[contact] rejet : validation :', problem);
         send(res, 400, { error: problem });
+        return false;
+    }
+
+    // 503 : le client affiche alors l'adresse en clair, le visiteur garde un moyen
+    // de joindre.
+    const token = sendBudget.take();
+    if (token === null) {
+        console.warn('[contact] rejet : plafond global d\'envois atteint');
+        send(res, 503, { error: 'Le formulaire est momentanément indisponible.' });
         return false;
     }
 
@@ -175,8 +196,13 @@ const handleContact = async (req, res) => {
             subject: `Message de ${body.name}`,
             text: `De : ${body.name} <${body.email}>\n\n${body.message}`,
         });
+        smtpOk = true;
     } catch (err) {
-        console.error('[contact] envoi impossible:', err.message);
+        sendBudget.refund(token);
+        if (err.code === 'EAUTH') smtpOk = false;
+        // code (EAUTH, ETIMEDOUT, EENVELOPE…) et réponse SMTP : sans eux, le
+        // message seul ne dit pas si c'est le mot de passe, le réseau ou OVH.
+        console.error('[contact] envoi impossible:', err.code, err.responseCode, err.command, err.message);
         send(res, 502, { error: 'Une erreur est survenue, veuillez réessayer plus tard.' });
         return false;
     }
@@ -185,9 +211,24 @@ const handleContact = async (req, res) => {
     return true;
 };
 
-const server = http.createServer(async (req, res) => {
+// Vérifié au démarrage : sans ça, /health répondait ok avec un mot de passe
+// SMTP faux, et portfolio-deployer validait un déploiement où chaque envoi
+// échoue. Pas d'arrêt du processus en cas d'échec : une panne SMTP passagère
+// au démarrage du VPS ferait boucler PM2 jusqu'à ce qu'il abandonne.
+let smtpOk = null;
+const smtpCheck = transporter.verify().then(
+    () => { smtpOk = true; },
+    (err) => {
+        smtpOk = false;
+        console.error('[contact] SMTP injoignable au démarrage:', err.code, err.responseCode, err.message);
+    },
+);
+
+const route = async (req, res) => {
     if (req.method === 'GET' && req.url === '/health') {
-        return send(res, 200, { ok: true });
+        // Attend la vérification initiale, pour que le deployer voie le vrai état.
+        await smtpCheck;
+        return send(res, smtpOk ? 200 : 503, { ok: smtpOk });
     }
 
     if (req.method !== 'POST') {
@@ -195,7 +236,9 @@ const server = http.createServer(async (req, res) => {
         return res.end();
     }
 
+    // Pas d'IP dans ces logs : la mention de confidentialité du site n'en prévoit pas.
     if (!isSameOrigin(req, ALLOWED_ORIGINS)) {
+        console.warn('[contact] rejet : Content-Type ou Origin non autorisé');
         return send(res, 415, { error: 'Requête invalide.' }, true);
     }
 
@@ -205,6 +248,7 @@ const server = http.createServer(async (req, res) => {
 
     const remaining = COOLDOWN_MS - (Date.now() - (lastSeen.get(key) ?? 0));
     if (remaining > 0) {
+        console.warn('[contact] rejet : délai par IP');
         const minutes = Math.ceil(remaining / 60000);
         return send(res, 429, {
             error: `Merci de patienter encore ${minutes} minute(s) avant de renvoyer un message.`,
@@ -226,6 +270,15 @@ const server = http.createServer(async (req, res) => {
     } finally {
         if (!keep) lastSeen.set(key, Date.now() - COOLDOWN_MS + FAILURE_COOLDOWN_MS);
     }
+};
+
+// Filet pour tout ce qui précède le try de `route` (origine, clé d'IP) : sans
+// lui, une exception laisserait nginx attendre son 504.
+const server = http.createServer((req, res) => {
+    route(req, res).catch((err) => {
+        console.error('[contact] erreur inattendue:', err);
+        if (!res.headersSent) send(res, 500, { error: 'Une erreur est survenue.' }, true);
+    });
 });
 
 server.on('error', (err) => {

@@ -23,7 +23,9 @@
     <meta name="twitter:title" content="Valentin Combier — Chargé d'applications métier, Salesforce &amp; ERP" />
     <meta name="twitter:description" content="Support applicatif, administration Salesforce et gestion de projet ERP, avec des compétences en développement web." />
     <meta name="twitter:image" content="https://valentincombier.com/og-image.png" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'">
+    <!-- frame-ancestors n'a d'effet qu'en en-tête HTTP (nginx, vercel.json) : en
+         <meta>, le navigateur l'ignore et l'écrit en erreur dans la console. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; form-action 'self'">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <link rel="canonical" href="https://valentincombier.com/" />
     <link rel="manifest" href="/manifest.json" />

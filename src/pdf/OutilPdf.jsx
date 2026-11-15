@@ -51,6 +51,12 @@ function lireFichier(fichier, html) {
     };
 }
 
+// Le texte change après « Afficher les images » : le lecteur d'écran l'annonce.
+const annonce = (fic) => {
+    if (!fic) return '';
+    return fic.imagesAffichees ? "Images affichées dans l'aperçu." : `Fichier chargé : ${fic.resume}`;
+};
+
 const Etape = ({ numero, titre, children }) => (
     <section className="card border-0 theme-card o-etape" style={{ backgroundColor: 'var(--card-bg)' }} aria-labelledby={`etape-${numero}`}>
         <div className="card-body">
@@ -93,17 +99,17 @@ const Outil = () => {
         setErreur(null);
         if (!fichier) return;
         if (!/\.x?html?$/i.test(fichier.name) && fichier.type !== 'text/html') {
-            setErreur(`« ${fichier.name} » n'est pas un fichier HTML. Sur le site de la fic, choisis le téléchargement « HTML ».`);
+            setErreur(`« ${fichier.name} » n'est pas un fichier HTML. Sur le site de la fic, choisis le téléchargement « HTML ».`);
             return;
         }
         if (fichier.size > 60 * 1024 * 1024) {
-            setErreur('Ce fichier est trop gros (plus de 60 Mo).');
+            setErreur('Ce fichier est trop gros (plus de 60 Mo).');
             return;
         }
         try {
             setFic(lireFichier(fichier, await fichier.text()));
         } catch {
-            setErreur("Impossible de lire ce fichier. Est-ce bien le fichier HTML d'origine ?");
+            setErreur("Impossible de lire ce fichier. Est-ce bien le fichier HTML d'origine ?");
         }
     };
 
@@ -114,7 +120,9 @@ const Outil = () => {
             img.src = img.dataset.src;
             img.removeAttribute('data-src');
         }
-        setFic((f) => ({ ...f, imagesDistantes: 0 }));
+        setFic((f) => ({ ...f, imagesDistantes: 0, imagesAffichees: true }));
+        // Le bouton disparaît : sans cela, le focus clavier retomberait sur la page.
+        livre.current.focus();
     };
 
     // Le navigateur propose le titre de la page comme nom du PDF.
@@ -132,7 +140,7 @@ const Outil = () => {
             <header className="mb-4">
                 <h1 className="fw-bold mb-2">Transformer un fichier HTML en PDF</h1>
                 <p className="text-muted mb-0">
-                    Choisis le fichier d'une fic téléchargée en HTML. Tout se passe dans ton navigateur : le fichier n'est envoyé nulle part.
+                    Choisis le fichier d'une fic téléchargée en HTML. Tout se passe dans ton navigateur : le fichier n'est envoyé nulle part.
                 </p>
             </header>
 
@@ -159,7 +167,7 @@ const Outil = () => {
                 {erreur && <p className="o-erreur mt-3 mb-0" role="alert">{erreur}</p>}
                 {/* Toujours présent : une zone d'annonce ajoutée en même temps que
                     son texte n'est pas lue par les lecteurs d'écran. */}
-                <p className="visually-hidden" role="status">{fic ? `Fichier chargé : ${fic.resume}` : ''}</p>
+                <p className="visually-hidden" role="status">{annonce(fic)}</p>
             </Etape>
 
             {fic && (
@@ -219,9 +227,9 @@ const Outil = () => {
                         <details className="o-aide mt-3">
                             <summary>Comment enregistrer le PDF</summary>
                             <ul className="mt-2 mb-0">
-                                <li><strong>Ordinateur</strong> : dans la fenêtre d'impression, choisis « Enregistrer au format PDF » comme imprimante. Si l'adresse du site apparaît en haut des pages, décoche « En-têtes et pieds de page ».</li>
-                                <li><strong>Android</strong> : en haut de la fenêtre d'impression, choisis « Enregistrer au format PDF », puis appuie sur le bouton PDF.</li>
-                                <li><strong>iPhone, iPad</strong> : dans « Options d'impression », appuie sur le bouton de partage en haut, puis « Enregistrer dans Fichiers ».</li>
+                                <li><strong>Ordinateur</strong> : dans la fenêtre d'impression, choisis « Enregistrer au format PDF » comme imprimante. Si l'adresse du site apparaît en haut des pages, décoche « En-têtes et pieds de page ».</li>
+                                <li><strong>Android</strong> : en haut de la fenêtre d'impression, choisis « Enregistrer au format PDF », puis appuie sur le bouton PDF.</li>
+                                <li><strong>iPhone, iPad</strong> : dans « Options d'impression », appuie sur le bouton de partage en haut, puis « Enregistrer dans Fichiers ».</li>
                             </ul>
                         </details>
                     </Etape>

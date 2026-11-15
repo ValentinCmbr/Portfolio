@@ -52,7 +52,8 @@ code {
   /* Bleu plus sombre que l'accent : #0d6efd sur #e8eef8 est à 3.9:1. */
   --badge-color: #0a58ca;
   --proj-tag-bg: #f1f5ff;
-  --proj-tag-color: #0d6efd;
+  /* Même bleu que les pastilles : #0d6efd sur #f1f5ff est à 4.1:1. */
+  --proj-tag-color: #0a58ca;
   --proj-tag-border: #dce8ff;
   --timeline-dot-bg: #ffffff;
   --timeline-content-bg: #ffffff;

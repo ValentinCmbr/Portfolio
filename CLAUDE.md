@@ -12,6 +12,7 @@ Front (racine) :
 npm start          # serveur de dev Vite
 npm run build      # build dans dist/
 npm run preview    # sert dist/
+npm test           # tests du nettoyeur de /pdf/ (node --test, DOM fourni par jsdom)
 ```
 
 Endpoint de contact (`server/contact`, paquet séparé avec son propre `package.json`) :
@@ -21,7 +22,8 @@ cd server/contact && npm test                          # node --test
 cd server/contact && node --test --test-name-pattern="<nom>"   # un seul test
 ```
 
-Pas de lint, de formateur ni de tests côté front. En CI, Semgrep
+Pas de lint ni de formateur. Côté front, seul `src/pdf/nettoyer.js` est testé
+(`src/**/*.test.mjs`) : jsdom reste en v26, la v27 exige Node 22.12 ou plus. En CI, Semgrep
 (`p/javascript`, `p/react`, `p/secrets`) échoue au moindre match.
 
 ## Architecture

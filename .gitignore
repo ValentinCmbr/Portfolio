@@ -38,3 +38,6 @@ deploy_key.pub
 
 # Dependances du service de contact (deploye separement sur le VPS)
 server/**/node_modules
+
+# Captures et fichiers de test du MCP Playwright
+.playwright-mcp/

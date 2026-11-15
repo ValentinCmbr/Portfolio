@@ -117,7 +117,7 @@ function copierAttributs(source, cible, balise) {
     const src = imageSure(source.getAttribute('src'));
     // Une image distante préviendrait l'auteur du fichier (IP, navigateur) dès
     // l'ouverture : elle attend que le visiteur demande à la charger.
-    if (src) cible.setAttribute(src.startsWith('data:') ? 'src' : 'data-src', src);
+    if (src) cible.setAttribute(/^data:/i.test(src) ? 'src' : 'data-src', src);
     cible.setAttribute('alt', source.getAttribute('alt') ?? '');
     cible.setAttribute('referrerpolicy', 'no-referrer');
     for (const nom of ['width', 'height']) {

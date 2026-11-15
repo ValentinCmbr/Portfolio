@@ -5,76 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Page de dépannage partagée à la main : hors des moteurs de recherche. -->
     <meta name="robots" content="noindex, nofollow" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self'; form-action 'none'">
+    <!-- Même politique que la page principale (polices Google des styles
+         Aurora et Brutal), sans formulaire à envoyer. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; form-action 'none'">
     <meta http-equiv="Referrer-Policy" content="no-referrer">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>HTML en PDF</title>
-    <!-- Format de page, réécrit par main.js selon les réglages. -->
-    <style id="style-page"></style>
   </head>
   <body>
-    <div class="o-page">
-      <header class="o-entete">
-        <h1>Transformer un fichier HTML en PDF</h1>
-        <p>Choisis le fichier d'une fic téléchargée en HTML. Tout se passe dans ton navigateur : le fichier n'est envoyé nulle part.</p>
-      </header>
-
-      <section class="o-etape" aria-labelledby="t-fichier">
-        <h2 id="t-fichier"><span class="o-num">1</span> Le fichier</h2>
-        <label class="o-depot" id="zone-depot">
-          <span class="o-depot-titre" id="nom-fichier">Choisir un fichier .html</span>
-          <span class="o-depot-aide">ou le glisser ici</span>
-          <input type="file" id="fichier" accept=".html,.htm,text/html" class="o-cache" />
-        </label>
-        <p id="erreur" class="o-erreur" role="alert" hidden></p>
-      </section>
-
-      <section class="o-etape" id="reglages" aria-labelledby="t-reglages" hidden>
-        <h2 id="t-reglages"><span class="o-num">2</span> La mise en page</h2>
-        <form id="formulaire" class="o-reglages">
-          <fieldset>
-            <legend>Format</legend>
-            <label><input type="radio" name="format" value="a4" checked /> A4, comme le PDF du site</label>
-            <label><input type="radio" name="format" value="a5" /> Livre (A5)</label>
-            <label><input type="radio" name="format" value="ecran" /> Liseuse, téléphone</label>
-          </fieldset>
-          <fieldset>
-            <legend>Taille du texte</legend>
-            <label><input type="radio" name="taille" value="petit" /> Petite</label>
-            <label><input type="radio" name="taille" value="normal" checked /> Normale</label>
-            <label><input type="radio" name="taille" value="grand" /> Grande</label>
-          </fieldset>
-          <fieldset>
-            <legend>Police</legend>
-            <label><input type="radio" name="police" value="serif" checked /> Classique</label>
-            <label><input type="radio" name="police" value="sans" /> Moderne</label>
-          </fieldset>
-          <fieldset>
-            <legend>Options</legend>
-            <label><input type="checkbox" name="sauts" checked /> Chaque chapitre sur une nouvelle page</label>
-            <label><input type="checkbox" name="infos" checked /> Garder les tags et les infos de publication</label>
-          </fieldset>
-        </form>
-      </section>
-
-      <section class="o-etape" id="etape-pdf" aria-labelledby="t-pdf" hidden>
-        <h2 id="t-pdf"><span class="o-num">3</span> Le PDF</h2>
-        <div class="o-action">
-          <button type="button" id="imprimer" class="o-bouton">Enregistrer en PDF</button>
-          <p id="resume" class="o-resume"></p>
-        </div>
-        <details class="o-aide">
-          <summary>Comment enregistrer le PDF</summary>
-          <ul>
-            <li><strong>Ordinateur</strong> : dans la fenêtre d'impression, choisis « Enregistrer au format PDF » comme imprimante. Si l'adresse du site apparaît en haut des pages, décoche « En-têtes et pieds de page ».</li>
-            <li><strong>Android</strong> : en haut de la fenêtre d'impression, choisis « Enregistrer au format PDF », puis appuie sur le bouton PDF.</li>
-            <li><strong>iPhone, iPad</strong> : dans « Options d'impression », appuie sur le bouton de partage en haut, puis « Enregistrer dans Fichiers ».</li>
-          </ul>
-        </details>
-        <p class="o-legende">Aperçu</p>
-        <article id="livre" class="o-livre"></article>
-      </section>
-    </div>
-    <script type="module" src="/src/pdf/main.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/pdf/main.jsx"></script>
   </body>
 </html>

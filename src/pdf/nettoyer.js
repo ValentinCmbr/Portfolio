@@ -30,8 +30,9 @@ const VIDES = new Set(['br', 'hr', 'img']);
 const ALIGNEMENTS = new Set(['left', 'right', 'center', 'justify']);
 const NS_HTML = 'http://www.w3.org/1999/xhtml';
 
-// Préfixe des id du fichier, pour qu'ils ne se mélangent pas à ceux de la page.
-export const PREFIXE_ID = 'f-';
+// Préfixe des id et classes du fichier, pour qu'ils ne se mélangent pas à ceux
+// de la page.
+export const PREFIXE = 'f-';
 
 function entier(valeur, max) {
   const n = Number.parseInt(valeur, 10);
@@ -44,7 +45,7 @@ function propre(texte) {
 
 function lienSur(href) {
   if (!href) return null;
-  if (href.startsWith('#')) return `#${PREFIXE_ID}${href.slice(1)}`;
+  if (href.startsWith('#')) return `#${PREFIXE}${href.slice(1)}`;
   try {
     const url = new URL(href);
     return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
@@ -67,9 +68,11 @@ function imageSure(src) {
 }
 
 function copierAttributs(source, cible, balise) {
+  // Classes du fichier préfixées comme les id : une classe « d-none » ou
+  // « card » ne doit pas recevoir les styles Bootstrap du portfolio.
   const classes = [];
   for (const c of source.classList) {
-    if (/^[a-z][\w-]{0,40}$/i.test(c)) classes.push(c);
+    if (/^[a-z][\w-]{0,40}$/i.test(c)) classes.push(PREFIXE + c);
   }
   const style = source.getAttribute('style') ?? '';
   const alignement = balise === 'center'
@@ -79,7 +82,7 @@ function copierAttributs(source, cible, balise) {
   if (classes.length) cible.className = classes.join(' ');
 
   const id = source.getAttribute('id');
-  if (id && /^[\w:.-]{1,80}$/.test(id)) cible.id = PREFIXE_ID + id;
+  if (id && /^[\w:.-]{1,80}$/.test(id)) cible.id = PREFIXE + id;
   for (const nom of ['title', 'lang']) {
     const valeur = source.getAttribute(nom);
     if (valeur) cible.setAttribute(nom, valeur.slice(0, 200));

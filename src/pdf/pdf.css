@@ -1,0 +1,253 @@
+/* Page /pdf/ : interface (classes o-*) puis mise en page de la fic (.o-livre). */
+
+:root {
+  --fond: #f3eee5;
+  --carte: #fbf8f2;
+  --encre: #1f1b16;
+  --doux: #675e53;
+  --trait: #d8cdbb;
+  --accent: #8a2c2c;
+  --accent-texte: #ffffff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #161411;
+    --carte: #201d19;
+    --encre: #ece6da;
+    --doux: #a99f92;
+    --trait: #3b352d;
+    --accent: #e0907e;
+    --accent-texte: #1a1310;
+    color-scheme: dark;
+  }
+}
+
+[hidden] { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.o-page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.o-entete h1 {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.75rem, 6vw, 2.4rem);
+  line-height: 1.15;
+  margin: 0 0 0.6rem;
+}
+.o-entete p { margin: 0; color: var(--doux); max-width: 36rem; }
+
+.o-etape { margin-top: 2.25rem; }
+.o-etape h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.05rem;
+  margin: 0 0 0.9rem;
+}
+.o-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.o-cache {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.o-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--trait);
+  border-radius: 10px;
+  background: var(--carte);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.o-depot:hover, .o-depot.o-survol { border-color: var(--accent); }
+.o-depot:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+.o-depot.o-charge { border-style: solid; padding: 1rem; }
+.o-depot-titre { font-weight: 600; overflow-wrap: anywhere; }
+.o-depot-aide { color: var(--doux); font-size: 0.9rem; }
+.o-depot.o-charge .o-depot-aide::before { content: "Changer de fichier, "; }
+
+.o-erreur {
+  margin: 0.75rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  background: var(--carte);
+}
+
+.o-reglages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+.o-reglages fieldset {
+  margin: 0;
+  padding: 0.8rem 0.9rem 0.9rem;
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  background: var(--carte);
+}
+.o-reglages legend {
+  padding: 0 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--doux);
+}
+.o-reglages label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+}
+.o-reglages input { accent-color: var(--accent); margin: 0.3rem 0 0; flex: none; }
+
+.o-action { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; }
+.o-bouton {
+  padding: 0.8rem 1.4rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-texte);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+.o-bouton:hover { filter: brightness(1.08); }
+.o-bouton:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+.o-resume { margin: 0; color: var(--doux); font-size: 0.92rem; overflow-wrap: anywhere; }
+
+.o-aide { margin-top: 1rem; font-size: 0.92rem; }
+.o-aide summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.o-aide ul { margin: 0.6rem 0 0; padding-left: 1.2rem; }
+.o-aide li { margin-bottom: 0.4rem; }
+
+.o-legende {
+  margin: 1.75rem 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--doux);
+}
+
+/* ---- La fic : aperçu à l'écran, puis contenu du PDF ---- */
+
+.o-livre {
+  --taille: 12pt;
+  --largeur: 38em;
+  --police: Georgia, serif;
+  max-width: calc(var(--largeur) + 6em);
+  max-height: 75vh;
+  overflow: auto;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 6vw, 3em);
+  border: 1px solid var(--trait);
+  border-radius: 4px;
+  background: #fffdf8;
+  color: #1d1a16;
+  font-family: var(--police);
+  font-size: var(--taille);
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  color-scheme: light;
+}
+
+.o-livre h1 { font-size: 2em; line-height: 1.2; text-align: center; margin: 1.5em 0 0.4em; }
+.o-livre h2 { font-size: 1.4em; line-height: 1.25; text-align: center; margin: 0.5em 0 1.2em; }
+.o-livre h3, .o-livre h4, .o-livre h5, .o-livre h6 { font-size: 1.1em; margin: 1.2em 0 0.6em; }
+.o-livre p { margin: 0 0 0.75em; }
+.o-livre blockquote { margin: 0 0 1em 1.2em; padding-left: 0.8em; border-left: 2px solid #d5ccbd; }
+.o-livre ul, .o-livre ol { padding-left: 1.5em; }
+.o-livre hr { width: 30%; margin: 1.5em auto; border: 0; border-top: 1px solid #b9ae9c; }
+.o-livre a { color: inherit; }
+.o-livre img { max-width: 100%; height: auto; }
+.o-livre table { border-collapse: collapse; margin: 0 0 1em; }
+.o-livre td, .o-livre th { border: 1px solid #c9bfae; padding: 0.2em 0.45em; vertical-align: top; }
+.o-livre pre { white-space: pre-wrap; }
+.o-livre .aligne-left { text-align: left; }
+.o-livre .aligne-right { text-align: right; }
+.o-livre .aligne-center { text-align: center; }
+.o-livre .aligne-justify { text-align: justify; }
+
+/* Page d'infos du fichier téléchargé : titre, auteur, tags, résumé. Les
+   titres « Preface » et « Afterword » ne servent qu'aux tables des matières. */
+.o-livre .toc-heading { display: none; }
+.o-livre .message { text-align: center; }
+.o-livre .byline { text-align: center; font-style: italic; margin-bottom: 2em; }
+.o-livre .message { font-size: 0.85em; color: #6a6156; }
+.o-livre dl.tags {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25em 0.9em;
+  margin: 0 0 1.5em;
+  padding: 0.9em 1em;
+  border: 1px solid #8a8073;
+  font-size: 0.85em;
+}
+.o-livre dl.tags dt { font-weight: 700; }
+.o-livre dl.tags dd { margin: 0; }
+.o-livre.o-sans-infos .message,
+.o-livre.o-sans-infos dl.tags { display: none; }
+
+@media print {
+  body { background: #fff; }
+  .o-page { max-width: none; padding: 0; margin: 0; }
+  .o-page > :not(#etape-pdf),
+  #etape-pdf > :not(#livre) { display: none !important; }
+  #etape-pdf { margin: 0; }
+
+  .o-livre {
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: #000;
+  }
+
+  /* Le texte commence après la page d'infos. La postface suit le dernier
+     chapitre : sur sa propre page, elle laisserait une page blanche quand
+     les infos sont masquées. */
+  .o-livre #f-chapters { break-before: page; }
+  .o-livre.o-sauts h2 { break-before: page; }
+  .o-livre h1, .o-livre h2, .o-livre h3 { break-after: avoid; }
+  .o-livre p { orphans: 2; widows: 2; }
+  .o-livre img, .o-livre tr { break-inside: avoid; }
+}

@@ -43,9 +43,23 @@ function propre(texte) {
   return (texte ?? '').replace(/\s+/g, ' ').trim();
 }
 
+// Identifiants gardés (sinon retirés) : les ancres ne pointent que vers eux.
+const ID_VALIDE = /^[\w:.-]{1,80}$/;
+// Langue du fichier, reprise sur l'aperçu pour la voix du lecteur d'écran.
+const LANGUE_VALIDE = /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i;
+
 function lienSur(href) {
   if (!href) return null;
-  if (href.startsWith('#')) return `#${PREFIXE}${href.slice(1)}`;
+  if (href.startsWith('#')) {
+    // « # » seul ou cible dont l'id n'a pas été gardé : l'ancre mènerait nulle part.
+    let cible;
+    try {
+      cible = decodeURIComponent(href.slice(1));
+    } catch {
+      return null;
+    }
+    return ID_VALIDE.test(cible) ? `#${PREFIXE}${cible}` : null;
+  }
   try {
     const url = new URL(href);
     return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
@@ -82,7 +96,7 @@ function copierAttributs(source, cible, balise) {
   if (classes.length) cible.className = classes.join(' ');
 
   const id = source.getAttribute('id');
-  if (id && /^[\w:.-]{1,80}$/.test(id)) cible.id = PREFIXE + id;
+  if (id && ID_VALIDE.test(id)) cible.id = PREFIXE + id;
   for (const nom of ['title', 'lang']) {
     const valeur = source.getAttribute(nom);
     if (valeur) cible.setAttribute(nom, valeur.slice(0, 200));
@@ -108,6 +122,10 @@ function copierAttributs(source, cible, balise) {
       const valeur = entier(source.getAttribute(nom), 5000);
       if (valeur) cible.setAttribute(nom, valeur);
     }
+  } else if (balise === 'details') {
+    // Toujours ouvert : un bloc replié (avertissements, notes, scène cachée)
+    // n'imprimerait que son titre.
+    cible.setAttribute('open', '');
   } else if (balise === 'td' || balise === 'th') {
     for (const nom of ['colspan', 'rowspan']) {
       const valeur = entier(source.getAttribute(nom), 100);
@@ -119,6 +137,15 @@ function copierAttributs(source, cible, balise) {
     const type = source.getAttribute('type');
     if (['1', 'a', 'A', 'i', 'I'].includes(type)) cible.setAttribute('type', type);
   }
+}
+
+// Compte nœud de texte par nœud de texte : textContent colle le dernier mot
+// d'un paragraphe au premier du suivant quand rien ne les sépare dans le HTML.
+function compterMots(noeud) {
+  if (noeud.nodeType === 3) return noeud.data.split(/\s+/).filter(Boolean).length;
+  let total = 0;
+  for (const enfant of noeud.childNodes) total += compterMots(enfant);
+  return total;
 }
 
 function copier(noeud, parent, doc) {
@@ -145,7 +172,7 @@ function copier(noeud, parent, doc) {
 /**
  * Lit le HTML d'une fic et le recrée proprement dans `doc`.
  * Les deux dépendances sont passées pour pouvoir tester hors navigateur.
- * @returns {{ titre: string, auteur: string, contenu: DocumentFragment, mots: number, chapitres: number }}
+ * @returns {{ titre: string, auteur: string, langue: string, contenu: DocumentFragment, mots: number, chapitres: number }}
  */
 export function nettoyerFic(html, { document: doc, DOMParser: Parser }) {
   const source = new Parser().parseFromString(html, 'text/html');
@@ -154,8 +181,11 @@ export function nettoyerFic(html, { document: doc, DOMParser: Parser }) {
 
   const titre = propre(source.querySelector('h1')?.textContent) || propre(source.title);
   const auteur = propre(source.querySelector('[rel="author"]')?.textContent);
-  const corps = source.getElementById('chapters') ?? source.body;
-  const mots = propre(corps.textContent).split(' ').filter(Boolean).length;
+  const langue = source.documentElement.getAttribute('lang') ?? source.body.getAttribute('lang') ?? '';
+  // Mots comptés sur la copie nettoyée : le texte des scripts et styles du
+  // fichier n'y est plus.
+  const corps = contenu.querySelector(`#${PREFIXE}chapters`) ?? contenu;
+  const mots = compterMots(corps);
   const chapitres = source.querySelectorAll('#chapters h2').length;
-  return { titre, auteur, contenu, mots, chapitres };
+  return { titre, auteur, langue: LANGUE_VALIDE.test(langue) ? langue : '', contenu, mots, chapitres };
 }

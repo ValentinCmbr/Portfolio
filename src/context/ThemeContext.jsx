@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from 'react';
 
 const ThemeContext = createContext();
 
@@ -57,6 +57,7 @@ export const ThemeProvider = ({ children }) => {
     // le bouton, sous une clé neuve : l'ancienne clé « theme » valait « light »
     // chez tous ceux qui étaient déjà venus, sans qu'ils l'aient choisi.
     const [dark, setDark] = useState(() => storage.get('themeChoisi') !== 'light');
+    const choisi = useRef(false);
     const [style, setStyle] = useState(() => {
         const saved = storage.get('siteStyle');
         return STYLES.some(s => s.id === saved) ? saved : 'default';
@@ -66,6 +67,7 @@ export const ThemeProvider = ({ children }) => {
         const value = dark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', value);
         document.documentElement.setAttribute('data-bs-theme', value);
+        if (choisi.current) storage.set('themeChoisi', value);
     }, [dark]);
 
     useEffect(() => {
@@ -74,10 +76,12 @@ export const ThemeProvider = ({ children }) => {
         loadStyleFonts(style);
     }, [style]);
 
-    const toggle = useCallback(() => setDark(d => {
-        storage.set('themeChoisi', d ? 'light' : 'dark');
-        return !d;
-    }), []);
+    // L'enregistrement se fait dans l'effet, pas dans la fonction passée à
+    // setDark, que React peut appeler deux fois.
+    const toggle = useCallback(() => {
+        choisi.current = true;
+        setDark(d => !d);
+    }, []);
 
     // Without this the provider hands down a fresh object every render, which
     // would re-render every consumer (Navbar, Home) on any parent update.

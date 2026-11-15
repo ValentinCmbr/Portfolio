@@ -60,7 +60,10 @@ body {
   transition: border-color 0.15s ease;
 }
 .o-depot:hover, .o-depot.o-survol { border-color: var(--accent); }
-.o-depot:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+.o-depot:focus-within { outline: 3px solid var(--text); outline-offset: 3px; }
+/* Couleur des pastilles plutôt que le gris text-muted, à 4.0-4.2:1 sur le
+   fond de la zone dans le style Défaut. */
+.o-depot-aide { color: var(--tag-color); }
 .o-depot.o-charge { border-style: solid; padding: 1rem; }
 
 .o-erreur {
@@ -100,6 +103,10 @@ body {
   border-color: var(--accent-fill);
   background: var(--accent-fill);
   color: var(--on-accent);
+  /* Anneau de la couleur du texte : la couleur seule ne sépare pas assez
+     coché et non coché en Aurora sombre (2.2:1) et Brutal clair (2.8:1). */
+  box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--text);
+  font-weight: 600;
 }
 .o-option:has(input:focus-visible) { outline: 3px solid var(--text); outline-offset: 2px; }
 html[data-style="brutal"] .o-option { border-width: 2px; font-family: var(--font-mono); }
@@ -115,7 +122,8 @@ html[data-style="brutal"] .o-option { border-width: 2px; font-family: var(--font
 
 .o-resume { overflow-wrap: anywhere; }
 .o-aide { font-size: 0.92rem; }
-.o-aide summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+/* Couleur du texte, soulignée : l'accent tombe à 2.5-4.2:1 en Aurora et Brutal clair. */
+.o-aide summary { cursor: pointer; color: var(--text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .o-aide li { margin-bottom: 0.4rem; }
 
 .o-legende {
@@ -150,6 +158,7 @@ html[data-style="brutal"] .o-option { border-width: 2px; font-family: var(--font
   hyphens: auto;
   color-scheme: light;
 }
+.o-livre:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
 
 .o-livre h1, .o-livre h2, .o-livre h3, .o-livre h4, .o-livre h5, .o-livre h6 {
   font-family: inherit;
@@ -167,6 +176,7 @@ html[data-style="brutal"] .o-option { border-width: 2px; font-family: var(--font
 .o-livre img { max-width: 100%; height: auto; }
 .o-livre table { border-collapse: collapse; margin: 0 0 1em; }
 .o-livre td, .o-livre th { border: 1px solid #c9bfae; padding: 0.2em 0.45em; vertical-align: top; }
+.o-livre summary { font-weight: 700; margin-bottom: 0.5em; }
 .o-livre pre, .o-livre code { font-size: 0.9em; color: inherit; white-space: pre-wrap; }
 .o-livre .aligne-left { text-align: left; }
 .o-livre .aligne-right { text-align: right; }

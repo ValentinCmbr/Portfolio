@@ -26,6 +26,10 @@ const CHOIX = [
     { nom: 'police', legende: 'Police', options: [['serif', 'Classique'], ['sans', 'Moderne']] },
 ];
 
+// Titre d'origine, lu une fois : afterprint ne se déclenche pas partout (iOS),
+// et le relire au clic suivant reprendrait le nom de la fic précédente.
+const TITRE_PAGE = document.title;
+
 const REGLAGES_INITIAUX = { format: 'a4', taille: 'normal', police: 'serif', sauts: true, infos: true };
 
 function nomDeFichier(texte) {
@@ -107,9 +111,8 @@ const Outil = () => {
 
     // Le navigateur propose le titre de la page comme nom du PDF.
     const imprimer = () => {
-        const titre = document.title;
-        document.title = fic.nomPdf || titre;
-        window.addEventListener('afterprint', () => { document.title = titre; }, { once: true });
+        document.title = fic.nomPdf || TITRE_PAGE;
+        window.addEventListener('afterprint', () => { document.title = TITRE_PAGE; }, { once: true });
         window.print();
     };
 
@@ -117,7 +120,7 @@ const Outil = () => {
     const classesLivre = ['o-livre', reglages.sauts && 'o-sauts', !reglages.infos && 'o-sans-infos'].filter(Boolean).join(' ');
 
     return (
-        <main id="main" className="container o-outil app-enter">
+        <main id="main" tabIndex={-1} className="container o-outil app-enter">
             <header className="mb-4">
                 <h1 className="fw-bold mb-2">Transformer un fichier HTML en PDF</h1>
                 <p className="text-muted mb-0">
@@ -129,19 +132,26 @@ const Outil = () => {
                 <label
                     className={`o-depot${survol ? ' o-survol' : ''}${fic ? ' o-charge' : ''}`}
                     onDragOver={(e) => { e.preventDefault(); setSurvol(true); }}
-                    onDragLeave={() => setSurvol(false)}
+                    // dragleave part aussi en passant sur les textes de la zone :
+                    // on ne retire la surbrillance qu'en sortant vraiment.
+                    onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setSurvol(false); }}
                     onDrop={(e) => { e.preventDefault(); setSurvol(false); charger(e.dataTransfer.files[0]); }}
                 >
                     <span className="fw-semibold">{fic ? fic.nomFichier : 'Choisir un fichier .html'}</span>
-                    <span className="text-muted small">{fic ? 'Changer de fichier, ou en glisser un autre ici' : 'ou le glisser ici'}</span>
+                    <span className="small o-depot-aide">{fic ? 'Changer de fichier, ou en glisser un autre ici' : 'ou le glisser ici'}</span>
                     <input
                         type="file"
                         accept=".html,.htm,text/html"
                         className="visually-hidden"
-                        onChange={(e) => charger(e.target.files[0])}
+                        // Remis à zéro : choisir de nouveau le même fichier doit
+                        // aussi déclencher le chargement.
+                        onChange={(e) => { charger(e.target.files[0]); e.target.value = ''; }}
                     />
                 </label>
                 {erreur && <p className="o-erreur mt-3 mb-0" role="alert">{erreur}</p>}
+                {/* Toujours présent : une zone d'annonce ajoutée en même temps que
+                    son texte n'est pas lue par les lecteurs d'écran. */}
+                <p className="visually-hidden" role="status">{fic ? `Fichier chargé : ${fic.resume}` : ''}</p>
             </Etape>
 
             {fic && (
@@ -202,6 +212,11 @@ const Outil = () => {
                         <article
                             ref={livre}
                             className={classesLivre}
+                            lang={fic.langue || undefined}
+                            // Le cadre défile : focusable pour le parcourir au clavier.
+                            tabIndex={0}
+                            role="region"
+                            aria-label="Aperçu de la fic"
                             style={{
                                 '--taille': format.tailles[reglages.taille],
                                 '--largeur': format.largeur,

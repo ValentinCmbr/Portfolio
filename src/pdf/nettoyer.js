@@ -115,7 +115,9 @@ function copierAttributs(source, cible, balise) {
     }
   } else if (balise === 'img') {
     const src = imageSure(source.getAttribute('src'));
-    if (src) cible.setAttribute('src', src);
+    // Une image distante préviendrait l'auteur du fichier (IP, navigateur) dès
+    // l'ouverture : elle attend que le visiteur demande à la charger.
+    if (src) cible.setAttribute(src.startsWith('data:') ? 'src' : 'data-src', src);
     cible.setAttribute('alt', source.getAttribute('alt') ?? '');
     cible.setAttribute('referrerpolicy', 'no-referrer');
     for (const nom of ['width', 'height']) {
@@ -172,7 +174,7 @@ function copier(noeud, parent, doc) {
 /**
  * Lit le HTML d'une fic et le recrée proprement dans `doc`.
  * Les deux dépendances sont passées pour pouvoir tester hors navigateur.
- * @returns {{ titre: string, auteur: string, langue: string, contenu: DocumentFragment, mots: number, chapitres: number }}
+ * @returns {{ titre: string, auteur: string, langue: string, contenu: DocumentFragment, mots: number, chapitres: number, imagesDistantes: number }}
  */
 export function nettoyerFic(html, { document: doc, DOMParser: Parser }) {
   const source = new Parser().parseFromString(html, 'text/html');
@@ -187,5 +189,6 @@ export function nettoyerFic(html, { document: doc, DOMParser: Parser }) {
   const corps = contenu.querySelector(`#${PREFIXE}chapters`) ?? contenu;
   const mots = compterMots(corps);
   const chapitres = source.querySelectorAll('#chapters h2').length;
-  return { titre, auteur, langue: LANGUE_VALIDE.test(langue) ? langue : '', contenu, mots, chapitres };
+  const imagesDistantes = contenu.querySelectorAll('img[data-src]').length;
+  return { titre, auteur, langue: LANGUE_VALIDE.test(langue) ? langue : '', contenu, mots, chapitres, imagesDistantes };
 }

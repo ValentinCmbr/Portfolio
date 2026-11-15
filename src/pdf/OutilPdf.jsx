@@ -109,6 +109,14 @@ const Outil = () => {
 
     const regler = (nom, valeur) => setReglages((r) => ({ ...r, [nom]: valeur }));
 
+    const chargerImages = () => {
+        for (const img of livre.current.querySelectorAll('img[data-src]')) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        }
+        setFic((f) => ({ ...f, imagesDistantes: 0 }));
+    };
+
     // Le navigateur propose le titre de la page comme nom du PDF.
     const imprimer = () => {
         document.title = fic.nomPdf || TITRE_PAGE;
@@ -189,6 +197,17 @@ const Outil = () => {
                                     Garder les tags et les infos de publication
                                 </label>
                             </fieldset>
+                            {fic.imagesDistantes > 0 && (
+                                <div>
+                                    <p className="small text-muted mb-2">
+                                        {fic.imagesDistantes > 1 ? `${fic.imagesDistantes} images sont hébergées` : 'Une image est hébergée'} sur un autre site.
+                                        Les afficher prévient ce site de ta visite.
+                                    </p>
+                                    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={chargerImages}>
+                                        Afficher les images
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </Etape>
 

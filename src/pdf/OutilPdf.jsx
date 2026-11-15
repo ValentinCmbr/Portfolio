@@ -206,15 +206,16 @@ const Outil = () => {
                                 </label>
                             </fieldset>
                             {fic.imagesDistantes > 0 && (
-                                <div>
+                                <fieldset>
+                                    <legend>Images</legend>
                                     <p className="small text-muted mb-2">
                                         {fic.imagesDistantes > 1 ? `${fic.imagesDistantes} images sont hébergées` : 'Une image est hébergée'} sur un autre site.
                                         Les afficher prévient ce site de ta visite.
                                     </p>
-                                    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={chargerImages}>
+                                    <button type="button" className="btn btn-outline-dark btn-sm" onClick={chargerImages}>
                                         Afficher les images
                                     </button>
-                                </div>
+                                </fieldset>
                             )}
                         </div>
                     </Etape>

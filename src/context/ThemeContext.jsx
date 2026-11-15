@@ -53,7 +53,10 @@ const loadStyleFonts = (styleId) => {
 };
 
 export const ThemeProvider = ({ children }) => {
-    const [dark, setDark] = useState(() => storage.get('theme') === 'dark');
+    // Sombre par défaut. Le thème n'est mémorisé que si le visiteur clique sur
+    // le bouton, sous une clé neuve : l'ancienne clé « theme » valait « light »
+    // chez tous ceux qui étaient déjà venus, sans qu'ils l'aient choisi.
+    const [dark, setDark] = useState(() => storage.get('themeChoisi') !== 'light');
     const [style, setStyle] = useState(() => {
         const saved = storage.get('siteStyle');
         return STYLES.some(s => s.id === saved) ? saved : 'default';
@@ -63,7 +66,6 @@ export const ThemeProvider = ({ children }) => {
         const value = dark ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', value);
         document.documentElement.setAttribute('data-bs-theme', value);
-        storage.set('theme', value);
     }, [dark]);
 
     useEffect(() => {
@@ -72,7 +74,10 @@ export const ThemeProvider = ({ children }) => {
         loadStyleFonts(style);
     }, [style]);
 
-    const toggle = useCallback(() => setDark(d => !d), []);
+    const toggle = useCallback(() => setDark(d => {
+        storage.set('themeChoisi', d ? 'light' : 'dark');
+        return !d;
+    }), []);
 
     // Without this the provider hands down a fresh object every render, which
     // would re-render every consumer (Navbar, Home) on any parent update.

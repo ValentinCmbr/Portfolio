@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Page de dépannage partagée à la main : hors des moteurs de recherche. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- Même politique que la page principale (polices Google des styles
+         Aurora et Brutal), sans formulaire à envoyer. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data: https://fonts.gstatic.com; form-action 'none'">
+    <meta http-equiv="Referrer-Policy" content="no-referrer">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>HTML en PDF</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/pdf/main.jsx"></script>
+  </body>
+</html>

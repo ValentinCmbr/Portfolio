@@ -1,0 +1,227 @@
+/* Page /pdf/ : l'interface reprend les jetons du portfolio (index.css), donc
+   le thème clair/sombre et les styles Défaut, Aurora et Brutal. Seul l'aperçu
+   de la fic (.o-livre) garde l'aspect d'une page imprimée. */
+
+/* Fond du portfolio : Bootstrap, importé après index.css, remplaçait
+   `body { background-color: var(--bg) }` par son gris (#212529 en sombre).
+   L'accueil ne le montre pas, chaque section y peint son propre fond. */
+body {
+  background-color: var(--bg);
+}
+
+/* Pied de page en bas de l'écran même quand la page est courte. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Au-dessus des particules de fond (canvas fixe, z-index 0). */
+.o-outil,
+#root > footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Tant qu'aucun fichier n'est chargé, la page est courte : le contenu est
+   centré dans la hauteur, comme le haut de l'accueil, au lieu de laisser
+   tout le vide sous la carte. */
+.o-outil {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 760px;
+  padding-top: 6.5rem;
+  padding-bottom: 4rem;
+}
+
+.o-outil h1 {
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
+}
+
+.o-etape { margin-bottom: 1.25rem; }
+.o-etape .badge-pill-custom { font-size: 0.85rem; vertical-align: 0.15em; margin-right: 0.5rem; }
+
+/* Zone de dépôt du fichier. */
+.o-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 2rem 1rem;
+  border: max(2px, var(--border-width)) dashed var(--border);
+  border-radius: var(--radius-card);
+  background: var(--tag-bg);
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.o-depot:hover, .o-depot.o-survol { border-color: var(--accent); }
+.o-depot:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+.o-depot.o-charge { border-style: solid; padding: 1rem; }
+
+.o-erreur {
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  background: var(--tag-bg);
+}
+
+/* Réglages : chaque choix est une pastille, cochée = remplie d'accent. */
+.o-reglages {
+  display: grid;
+  gap: 1rem;
+}
+.o-reglages fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.o-reglages legend {
+  float: none;
+  width: auto;
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--skills-label-color);
+}
+
+.o-option {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--tag-border);
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  font-size: 0.92rem;
+  cursor: pointer;
+  user-select: none;
+}
+.o-option:hover { border-color: var(--accent); }
+.o-option:has(input:checked) {
+  border-color: var(--accent-fill);
+  background: var(--accent-fill);
+  color: var(--on-accent);
+}
+.o-option:has(input:focus-visible) { outline: 3px solid var(--text); outline-offset: 2px; }
+html[data-style="brutal"] .o-option { border-width: 2px; font-family: var(--font-mono); }
+
+.o-case {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.2rem 0;
+  cursor: pointer;
+}
+.o-case input { accent-color: var(--accent-fill); margin-top: 0.3rem; flex: none; }
+
+.o-resume { overflow-wrap: anywhere; }
+.o-aide { font-size: 0.92rem; }
+.o-aide summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.o-aide li { margin-bottom: 0.4rem; }
+
+.o-legende {
+  margin: 2rem 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--skills-label-color);
+}
+
+/* ---- La fic : aperçu à l'écran, puis contenu du PDF ---- */
+
+.o-livre {
+  --taille: 12pt;
+  --largeur: 38em;
+  --police: Georgia, serif;
+  max-width: calc(var(--largeur) + 6em);
+  max-height: 75vh;
+  overflow: auto;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 6vw, 3em);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background: #fffdf8;
+  color: #1d1a16;
+  font-family: var(--police);
+  font-size: var(--taille);
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  color-scheme: light;
+}
+
+.o-livre h1, .o-livre h2, .o-livre h3, .o-livre h4, .o-livre h5, .o-livre h6 {
+  font-family: inherit;
+  font-weight: 700;
+  color: inherit;
+}
+.o-livre h1 { font-size: 2em; line-height: 1.2; text-align: center; margin: 1.5em 0 0.4em; }
+.o-livre h2 { font-size: 1.4em; line-height: 1.25; text-align: center; margin: 0.5em 0 1.2em; }
+.o-livre h3, .o-livre h4, .o-livre h5, .o-livre h6 { font-size: 1.1em; margin: 1.2em 0 0.6em; }
+.o-livre p { margin: 0 0 0.75em; }
+.o-livre blockquote { margin: 0 0 1em 1.2em; padding-left: 0.8em; border-left: 2px solid #d5ccbd; }
+.o-livre ul, .o-livre ol { padding-left: 1.5em; }
+.o-livre hr { width: 30%; margin: 1.5em auto; border: 0; border-top: 1px solid #b9ae9c; opacity: 1; }
+.o-livre a { color: inherit; }
+.o-livre img { max-width: 100%; height: auto; }
+.o-livre table { border-collapse: collapse; margin: 0 0 1em; }
+.o-livre td, .o-livre th { border: 1px solid #c9bfae; padding: 0.2em 0.45em; vertical-align: top; }
+.o-livre pre, .o-livre code { font-size: 0.9em; color: inherit; white-space: pre-wrap; }
+.o-livre .aligne-left { text-align: left; }
+.o-livre .aligne-right { text-align: right; }
+.o-livre .aligne-center { text-align: center; }
+.o-livre .aligne-justify { text-align: justify; }
+
+/* Page d'infos du fichier téléchargé (classes préfixées f-) : titre, auteur,
+   tags, résumé. Les titres « Preface » et « Afterword » ne servent qu'aux
+   tables des matières. */
+.o-livre .f-toc-heading { display: none; }
+.o-livre .f-message { font-size: 0.85em; text-align: center; color: #6a6156; }
+.o-livre .f-byline { text-align: center; font-style: italic; margin-bottom: 2em; }
+.o-livre dl.f-tags {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25em 0.9em;
+  margin: 0 0 1.5em;
+  padding: 0.9em 1em;
+  border: 1px solid #8a8073;
+  font-size: 0.85em;
+}
+.o-livre dl.f-tags dt { font-weight: 700; }
+.o-livre dl.f-tags dd { margin: 0; }
+.o-livre.o-sans-infos .f-message,
+.o-livre.o-sans-infos dl.f-tags { display: none; }
+
+@media print {
+  html, body { background: #fff !important; }
+  body { background-image: none !important; }
+  #root > :not(main),
+  .o-outil > :not(.o-apercu),
+  .o-apercu > :not(.o-livre) { display: none !important; }
+  /* Mise en page normale à l'impression : les sauts de page passent mal
+     dans un conteneur flex. */
+  #root, .o-outil { display: block; min-height: 0; }
+  .o-outil { max-width: none; padding: 0; margin: 0; }
+
+  .o-livre {
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    color: #000;
+  }
+
+  /* Le texte commence après la page d'infos. La postface suit le dernier
+     chapitre : sur sa propre page, elle laisserait une page blanche quand
+     les infos sont masquées. */
+  .o-livre #f-chapters { break-before: page; }
+  .o-livre.o-sauts h2 { break-before: page; }
+  .o-livre h1, .o-livre h2, .o-livre h3 { break-after: avoid; }
+  .o-livre p { orphans: 2; widows: 2; }
+  .o-livre img, .o-livre tr { break-inside: avoid; }
+}

@@ -275,7 +275,10 @@ code {
   color: #f1f5f9;
 }
 
-[data-theme="dark"] .btn-outline-dark:hover {
+/* :focus-visible aussi : sinon Bootstrap y remet ses couleurs claires (fond et
+   bord #212529, invisibles sur les cartes sombres). */
+[data-theme="dark"] .btn-outline-dark:hover,
+[data-theme="dark"] .btn-outline-dark:focus-visible {
   background-color: rgba(241, 245, 249, 0.1);
   border-color: #f1f5f9;
   color: #f1f5f9;
@@ -287,7 +290,8 @@ code {
   color: #0f172a;
 }
 
-[data-theme="dark"] .btn-dark:hover {
+[data-theme="dark"] .btn-dark:hover,
+[data-theme="dark"] .btn-dark:focus-visible {
   background-color: #e2e8f0;
   border-color: #e2e8f0;
   color: #0f172a;
@@ -339,8 +343,9 @@ html[data-style="gradient"] .btn-dark:hover {
   color: #fff;
 }
 
+/* Bord tiré du texte : var(--border) était à 1.3:1 sur la carte (WCAG 1.4.11). */
 html[data-style="gradient"] .btn-outline-dark {
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--text) 60%, transparent);
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   color: var(--text);
@@ -382,11 +387,10 @@ html[data-style="brutal"] .btn-outline-dark:hover {
   color: var(--text);
 }
 
-/* Ces styles remplacent le box-shadow qui sert d'anneau de focus à Bootstrap,
-   lequel a déjà mis outline: 0 : sans cette règle, le focus clavier est
-   invisible sur les boutons. */
-html[data-style="gradient"] .btn:focus-visible,
-html[data-style="brutal"] .btn:focus-visible {
+/* Bootstrap met outline: 0 et compte sur un box-shadow comme anneau de focus.
+   Gradient et brutal remplacent ce box-shadow, et en sombre il est à 1.1:1 sur
+   les cartes : le focus clavier était invisible. Contour pour tous les styles. */
+html .btn:focus-visible {
   outline: 3px solid var(--text);
   outline-offset: 3px;
 }

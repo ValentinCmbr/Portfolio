@@ -23,8 +23,14 @@ body {
   z-index: 1;
 }
 
+/* Tant qu'aucun fichier n'est chargé, la page est courte : le contenu est
+   centré dans la hauteur, comme le haut de l'accueil, au lieu de laisser
+   tout le vide sous la carte. */
 .o-outil {
   flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   max-width: 760px;
   padding-top: 6.5rem;

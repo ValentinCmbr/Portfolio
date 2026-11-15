@@ -2,6 +2,13 @@
    le thème clair/sombre et les styles Défaut, Aurora et Brutal. Seul l'aperçu
    de la fic (.o-livre) garde l'aspect d'une page imprimée. */
 
+/* Au-dessus des particules de fond (canvas fixe, z-index 0). */
+.o-outil,
+#root > footer {
+  position: relative;
+  z-index: 1;
+}
+
 .o-outil {
   max-width: 760px;
   padding-top: 6.5rem;

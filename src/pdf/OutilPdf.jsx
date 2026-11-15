@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ThemeProvider } from '../context/ThemeContext';
 import ThemeControls from '../components/ThemeControls';
+import ParticleCanvas from '../components/ParticleCanvas';
 import Footer from '../components/Footer';
 import { nettoyerFic } from './nettoyer.js';
 
@@ -116,7 +117,7 @@ const Outil = () => {
     const classesLivre = ['o-livre', reglages.sauts && 'o-sauts', !reglages.infos && 'o-sans-infos'].filter(Boolean).join(' ');
 
     return (
-        <main id="main" className="container o-outil">
+        <main id="main" className="container o-outil app-enter">
             <header className="mb-4">
                 <h1 className="fw-bold mb-2">Transformer un fichier HTML en PDF</h1>
                 <p className="text-muted mb-0">
@@ -216,6 +217,7 @@ const Outil = () => {
 
 const OutilPdf = () => (
     <ThemeProvider>
+        <ParticleCanvas style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />
         <a href="#main" className="skip-link visually-hidden-focusable">Aller au contenu</a>
         <nav className="navbar fixed-top shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderBottom: '1px solid var(--border)' }}>
             <div className="container">

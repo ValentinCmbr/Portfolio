@@ -2,6 +2,20 @@
    le thème clair/sombre et les styles Défaut, Aurora et Brutal. Seul l'aperçu
    de la fic (.o-livre) garde l'aspect d'une page imprimée. */
 
+/* Fond du portfolio : Bootstrap, importé après index.css, remplaçait
+   `body { background-color: var(--bg) }` par son gris (#212529 en sombre).
+   L'accueil ne le montre pas, chaque section y peint son propre fond. */
+body {
+  background-color: var(--bg);
+}
+
+/* Pied de page en bas de l'écran même quand la page est courte. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 /* Au-dessus des particules de fond (canvas fixe, z-index 0). */
 .o-outil,
 #root > footer {
@@ -10,6 +24,8 @@
 }
 
 .o-outil {
+  flex: 1 0 auto;
+  width: 100%;
   max-width: 760px;
   padding-top: 6.5rem;
   padding-bottom: 4rem;
